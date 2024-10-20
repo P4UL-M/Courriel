@@ -9,5 +9,5 @@ export default auth((req) => {
 });
 
 export const config = {
-    matcher: ["/profile"], // Apply middleware only to /profile route
+    matcher: ["/profile", "/"], // Apply middleware only to /profile route
 };
