@@ -1,8 +1,7 @@
 // Table: Users
 export interface User {
     id: number; // serial -> number
-    firstName?: string | null; // varchar(50) -> string | null, optional
-    lastName?: string | null; // varchar(50) -> string | null, optional
+    name?: string; // varchar(50) -> string | null, optional
     email: string; // varchar(255), not null
     jobTitle?: string | null; // varchar(100) -> string | null, optional
     company?: string | null; // varchar(100) -> string | null, optional
@@ -22,13 +21,13 @@ export interface Thread {
 
 // Table: Emails
 export interface Email {
-    id: number; // serial -> number
-    threadId: number; // integer -> number
-    senderId: number; // integer -> number
-    recipientId: number; // integer -> number
+    id: string;
+    sender: Pick<User, "name" | "email">; // integer -> number
+    recipients: Pick<User, "name" | "email">[]; // integer -> number
     subject?: string | null; // varchar(255) -> string | null, optional
     body?: string | null; // text -> string | null, optional
     sentDate: Date; // timestamp -> Date
+    hasAttachments: boolean; // boolean -> boolean
 }
 
 // Table: Folders

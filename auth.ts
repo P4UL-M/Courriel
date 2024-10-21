@@ -44,6 +44,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             // Add property to token, so we can check if user is authenticated
             if (account?.access_token) {
                 token.accessToken = account.access_token;
+                token.provider = account.provider;
             }
             return token;
         },
@@ -51,6 +52,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             // Add property to session, so we can check if user is authenticated
             if (token?.accessToken) {
                 session.accessToken = token.accessToken as string;
+                session.provider = token.provider as string;
             }
             return session;
         },

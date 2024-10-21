@@ -1,5 +1,7 @@
 import { ThreadHeader, ThreadList } from '@/app/components/thread-list';
 import { Suspense } from 'react';
+import { fetchEmails } from '../../../lib/db/queries';
+import { auth } from '../../../auth';
 
 export default function ThreadsPage({
     params,
@@ -35,7 +37,8 @@ async function Threads({
     searchParams: { q?: string; id?: string };
 }) {
     const q = searchParams.q || '';
-    const threads = [];
+    const session = await auth();
+    const threads = await fetchEmails(session?.provider || '', session?.accessToken || '', 10);
 
     return (
         <ThreadList folderName={folderName} threads={threads} searchQuery={q} />

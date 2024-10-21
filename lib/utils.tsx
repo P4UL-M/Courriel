@@ -7,16 +7,15 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatEmailString(
   userEmail: {
-    firstName: string | null;
-    lastName: string | null;
     email: string;
+    name?: string;
   },
   opts: { includeFullEmail: boolean } = { includeFullEmail: false },
 ) {
-  if (userEmail.firstName && userEmail.lastName) {
-    return `${userEmail.firstName} ${userEmail.lastName} ${
-      opts.includeFullEmail ? `<${userEmail.email}>` : ''
-    }`;
+  if (userEmail.name) {
+    console.log(userEmail.name);
+    return `${userEmail.name} ${opts.includeFullEmail ? `<${userEmail.email}>` : ''
+      }`;
   }
   return userEmail.email;
 }

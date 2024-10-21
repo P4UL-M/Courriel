@@ -5,81 +5,25 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
+import { fetchEmails } from "../../lib/db/queries";
+import { Email } from "../../lib/db/types";
 
 export default function ProfilePage() {
 
     const { data: session, status } = useSession();
-    const [emails, setEmails] = useState([]);
+    const [emails, setEmails] = useState([] as Email[]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        console.log("session", session);
         if (session?.accessToken) {
-            fetchGoogleEmails(session.accessToken);
+            console.log("Fetching emails...");
+            console.log("provider", session.provider);
+            fetchEmails(session.provider || '', session.accessToken).then((data) => {
+                setEmails(data || []);
+                setLoading(false);
+            });
         }
     }, [session]);
-
-    const fetchEmails = async (accessToken: string) => {
-        try {
-            // Microsoft Graph API endpoint for fetching emails
-            const response = await fetch("https://graph.microsoft.com/v1.0/me/messages", {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-            });
-
-            const data = await response.json();
-
-            // Update the emails state with fetched emails
-            setEmails(data.value);
-        } catch (error) {
-            console.error("Error fetching emails:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const fetchGoogleEmails = async (accessToken: string) => {
-        try {
-            // Google API endpoint for fetching Gmail messages
-            const response = await fetch(
-                "https://www.googleapis.com/gmail/v1/users/me/messages",
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
-            );
-
-            const data = await response.json();
-
-            console.log("data", data);
-
-            // Fetch the first 5 emails (you can adjust the number)
-            const emailsData = await Promise.all(
-                data.messages.slice(0, 5).map(async (message: any) => {
-                    const emailRes = await fetch(
-                        `https://www.googleapis.com/gmail/v1/users/me/messages/${message.id}`,
-                        {
-                            headers: {
-                                Authorization: `Bearer ${accessToken}`,
-                            },
-                        }
-                    );
-                    return emailRes.json();
-                })
-            );
-
-            console.log("emailsData", emailsData);
-
-            setEmails(emailsData as never[]);
-        } catch (error) {
-            console.error("Error fetching emails:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     if (status === "loading") {
         return <p>Loading...</p>;
     }
@@ -118,8 +62,8 @@ export default function ProfilePage() {
                         {emails.map((email) => (
                             <li key={email.id} className="mb-4">
                                 <p className="font-bold">{email.subject}</p>
-                                <p className="text-sm text-gray-500">From: {email.from?.emailAddress?.address}</p>
-                                <p className="text-sm text-gray-500">Received: {email.receivedDateTime}</p>
+                                <p className="text-sm text-gray-500">From: {email.sender.email}</p>
+                                <p className="text-sm text-gray-500">Received: {email.sentDate.toISOString()}</p>
                             </li>
                         ))}
                     </ul>

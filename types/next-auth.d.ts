@@ -5,6 +5,7 @@ import NextAuth from "next-auth";
 declare module "next-auth" {
     interface Session {
         accessToken?: string; // Add the accessToken to the session
+        provider?: string; // Add the provider to the session
     }
 
     interface User {
