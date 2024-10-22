@@ -33,3 +33,18 @@ export async function fetchGoogleEmails(accessToken: string, number: number = 10
         return [];
     }
 }
+
+export async function fetchGoogleEmailDetails(accessToken: string, emailId: string): Promise<GoogleEmail> {
+    try {
+        const response = await fetch(`https://www.googleapis.com/gmail/v1/users/me/messages/${emailId}`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching email details:", error);
+        return {} as GoogleEmail;
+    }
+}

@@ -1,6 +1,6 @@
-import { fetchEmailsMicrosoft } from "./queries.mycrosoft";
+import { fetchEmailDetailsMicrosoft, fetchEmailsMicrosoft } from "./queries.mycrosoft";
 import { Email } from "./types";
-import { fetchGoogleEmails, GoogleEmail } from "./queries.google";
+import { fetchGoogleEmailDetails, fetchGoogleEmails, GoogleEmail } from "./queries.google";
 
 export const fetchEmails = async (provider: string, accessToken: string, number: number = 10) => {
     if (provider === "microsoft-entra-id") {
@@ -55,5 +55,57 @@ export const fetchEmails = async (provider: string, accessToken: string, number:
     } else {
         console.error("Unknown provider:", provider);
         return [];
+    }
+};
+
+export const fetchEmailsDetails = async (provider: string, accessToken: string, emailId: string) => {
+    if (provider === "microsoft-entra-id") {
+        // fetch email details from Microsoft Graph API
+        const data = await fetchEmailDetailsMicrosoft(accessToken, emailId);
+
+        // translate to Email type
+        return {
+            id: data.id,
+            sender: {
+                name: data.sender?.emailAddress?.name,
+                email: data.sender?.emailAddress?.address,
+            },
+            recipients: data.toRecipients?.map((recipient) => ({
+                name: recipient.emailAddress?.name,
+                email: recipient.emailAddress?.address,
+            })),
+            subject: data.subject,
+            body: data.body?.content as string,
+            hasAttachments: data.hasAttachments,
+            sentDate: new Date(data.sentDateTime || 0),
+        } as Email;
+    } else if (provider === "google") {
+        // fetch email details from Google API
+        const data = await fetchGoogleEmailDetails(accessToken, emailId);
+
+        const sender = data.payload?.headers?.find((header) => header.name === "From")?.value || "Unknown";
+        // separate name and email
+        const senderName = sender.split("<")[0].trim();
+        const senderEmail = sender.match(/<([^>]*)>/)?.[1] || sender;
+        return {
+            id: data.id,
+            sender: {
+                name: senderName,
+                email: senderEmail,
+            },
+            recipients: data.payload?.headers
+                ?.filter((header) => header.name === "To")
+                .map((header) => ({
+                    name: header.value,
+                    email: header.value,
+                })),
+            subject: data.payload?.headers?.find((header) => header.name === "Subject")?.value || "No Subject",
+            body: data.snippet,
+            hasAttachments: data.payload?.mimeType === "multipart/mixed",
+            sentDate: new Date(parseInt(data.internalDate || "0")),
+        } as Email;
+    } else {
+        console.error("Unknown provider:", provider);
+        return {} as Email;
     }
 };

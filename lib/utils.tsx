@@ -13,7 +13,6 @@ export function formatEmailString(
   opts: { includeFullEmail: boolean } = { includeFullEmail: false },
 ) {
   if (userEmail.name) {
-    console.log(userEmail.name);
     return `${userEmail.name} ${opts.includeFullEmail ? `<${userEmail.email}>` : ''
       }`;
   }

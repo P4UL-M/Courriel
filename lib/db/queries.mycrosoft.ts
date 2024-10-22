@@ -25,3 +25,17 @@ export const fetchEmailsMicrosoft = async (accessToken: string, number: number =
         return [];
     }
 };
+
+export const fetchEmailDetailsMicrosoft = async (accessToken: string, emailId: string) => {
+    try {
+        const response = await fetch(`https://graph.microsoft.com/v1.0/me/messages/${emailId}`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+        return (await response.json()) as microsoftgraph.Message;
+    } catch (error) {
+        console.error("Error fetching email details:", error);
+        return {} as microsoftgraph.Message;
+    }
+};
