@@ -14,8 +14,6 @@ const UserIcon = () => {
 
     const user = session.user;
 
-    console.log("user", user, session);
-
     return (
         <div className="m-auto">
             <button onClick={() => setOpen(true)}>

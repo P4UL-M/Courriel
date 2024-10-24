@@ -46,10 +46,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             if (account?.access_token) {
                 token.accessToken = account.access_token;
                 token.provider = account.provider;
-                // if (account.provider === "microsoft-entra-id") {
-                //     token.user = await fetchUserProfile(account.access_token);
-                //     console.log("token.user", token.user);
-                // }
             }
             return token;
         },
@@ -58,7 +54,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             if (token?.accessToken) {
                 session.accessToken = token.accessToken as string;
                 session.provider = token.provider as string;
-                // session.user = token.user as User & AdapterUser;
             }
             return session;
         },

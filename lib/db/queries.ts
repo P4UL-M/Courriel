@@ -122,3 +122,34 @@ export const fetchEmailsDetails = async (provider: string, accessToken: string, 
         return {} as Email;
     }
 };
+
+export const fetchPrevAndNextEmails = async (provider: string, accessToken: string, emailId: string) => {
+    if (provider === "microsoft-entra-id") {
+        const data = await fetchEmailsMicrosoft(accessToken);
+
+        if (!data) {
+            return {};
+        }
+
+        const emailIndex = data.findIndex((email) => email.id === emailId);
+        return {
+            prevId: data[emailIndex + 1]?.id,
+            nextId: data[emailIndex - 1]?.id,
+        };
+    } else if (provider === "google") {
+        const data = await fetchGoogleEmails(accessToken);
+
+        if (!data) {
+            return {};
+        }
+
+        const emailIndex = data.findIndex((email) => email.id === emailId);
+        return {
+            prevId: data[emailIndex + 1]?.id,
+            nextId: data[emailIndex - 1]?.id,
+        };
+    } else {
+        console.error("Unknown provider:", provider);
+        return {};
+    }
+};

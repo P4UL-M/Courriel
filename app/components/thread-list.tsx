@@ -130,6 +130,6 @@ export function ThreadList({ folderName, threads }: ThreadListProps) {
           );
         })}
       </div>
-    </div>
+    </div >
   );
 }
