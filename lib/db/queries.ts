@@ -1,6 +1,6 @@
 import { fetchEmailDetailsMicrosoft, fetchEmailsMicrosoft } from "./queries.mycrosoft";
 import { Email } from "./types";
-import { fetchGoogleEmailDetails, fetchGoogleEmails, GoogleEmail } from "./queries.google";
+import { decodeBase64, fetchGoogleEmailDetails, fetchGoogleEmails, getEmailBody, GoogleEmail } from "./queries.google";
 
 export const fetchEmails = async (provider: string, accessToken: string, number: number = 10) => {
     if (provider === "microsoft-entra-id") {
@@ -95,6 +95,11 @@ export const fetchEmailsDetails = async (provider: string, accessToken: string, 
         // separate name and email
         const senderName = sender.split("<")[0].trim();
         const senderEmail = sender.match(/<([^>]*)>/)?.[1] || sender;
+        let emailBody = data.payload?.body?.data ? decodeBase64(data.payload.body.data) : "";
+        if (data.payload?.parts) {
+            emailBody = getEmailBody(data.payload.parts);
+        }
+
         return {
             id: data.id,
             sender: {
@@ -108,7 +113,7 @@ export const fetchEmailsDetails = async (provider: string, accessToken: string, 
                     email: header.value,
                 })),
             subject: data.payload?.headers?.find((header) => header.name === "Subject")?.value || "No Subject",
-            body: data.snippet,
+            body: emailBody,
             hasAttachments: data.payload?.mimeType === "multipart/mixed",
             sentDate: new Date(parseInt(data.internalDate || "0")),
         } as Email;
