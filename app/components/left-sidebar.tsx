@@ -5,7 +5,15 @@ import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
-export function LeftSidebar() {
+type leftSidebarProps = {
+    upCallback: (() => void) | undefined,
+    downCallback: (() => void) | undefined,
+};
+
+export function LeftSidebar({
+    upCallback,
+    downCallback,
+}: leftSidebarProps) {
     const { name } = useParams();
 
     return (
@@ -23,6 +31,8 @@ export function LeftSidebar() {
                 size="lg"
                 variant="outline"
                 className="p-2 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
+                onClick={upCallback}
+                disabled={!upCallback}
             >
                 <ChevronUp className="size-4 sm:size-5" />
             </Button>
@@ -30,6 +40,8 @@ export function LeftSidebar() {
                 size="lg"
                 variant="outline"
                 className="p-2 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
+                onClick={downCallback}
+                disabled={!downCallback}
             >
                 <ChevronDown className="size-4 sm:size-5" />
             </Button>

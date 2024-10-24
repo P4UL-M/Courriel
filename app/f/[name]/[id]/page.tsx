@@ -1,14 +1,19 @@
 import { LeftSidebar } from '@/app/components/left-sidebar';
 import { fetchEmailsDetails } from '@/lib/db/queries';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { ThreadActions } from '@/app/components/thread-actions';
 import { auth } from '../../../../auth';
 import { ThreadHeader } from '../../../components/thread-list';
+import ShadowWrapper from '../../../../components/ui/ShadowWrapper';
 
 export default async function EmailPage({
   params,
+  nextid,
+  previd,
 }: {
-  params: Promise<{ name: string; id: string }>;
+  params: Promise<{ name: string; id: string }>,
+  nextid: string | undefined,
+  previd: string | undefined,
 }) {
   const id = (await params).id;
   const session = await auth();
@@ -20,9 +25,9 @@ export default async function EmailPage({
 
   return (
     <div className="flex-grow h-full">
-      <ThreadHeader folderName={"Details"} />
+      <ThreadHeader folderName={(await params).name} />
       <div className="flex-grow h-full flex">
-        <LeftSidebar />
+        <LeftSidebar upCallback={nextid ? () => redirect(nextid) : undefined} downCallback={previd ? () => redirect(previd) : undefined} />
         <div className="flex-grow p-2 sm:p-6 overflow-auto">
           <div className="max-w-6xl mx-auto">
             <div className="flex flex-col sm:flex-row items-start justify-between mb-6 mx-6">
@@ -49,7 +54,8 @@ export default async function EmailPage({
                     {new Date(thread.sentDate!).toLocaleString()}
                   </div>
                 </div>
-                <div className="py-5" dangerouslySetInnerHTML={{ __html: thread.body as TrustedHTML }}></div>
+                <ShadowWrapper content={thread.body as string} />
+                {/* <div className="py-5" dangerouslySetInnerHTML={{ __html: thread.body as TrustedHTML }}></div> */}
               </div>
             </div>
           </div>
