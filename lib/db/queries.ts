@@ -6,6 +6,10 @@ export const fetchEmails = async (provider: string, accessToken: string, number:
     if (provider === "microsoft-entra-id") {
         const data = await fetchEmailsMicrosoft(accessToken, number);
 
+        if (!data) {
+            return [];
+        }
+
         // translate to Email type
         return data.map((email) => {
             return {
@@ -27,6 +31,10 @@ export const fetchEmails = async (provider: string, accessToken: string, number:
     } else if (provider === "google") {
         // fetch emails from Google API
         const data = await fetchGoogleEmails(accessToken, number);
+
+        if (!data) {
+            return [];
+        }
 
         // translate to Email type
         return data.map((email: GoogleEmail) => {

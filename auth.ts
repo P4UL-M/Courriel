@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { User } from "next-auth";
 import { Provider } from "next-auth/providers";
 import Google from "next-auth/providers/google";
 import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
@@ -9,9 +9,10 @@ const providers: Provider[] = [
         clientSecret: process.env.MICROSOFT_ENTRA_ID_CLIENT_SECRET!,
         authorization: {
             params: {
-                scope: "openid User.Read Mail.Read",
+                scope: "openid profile email User.Read Mail.Read",
             },
         },
+        profilePhotoSize: 48,
     }),
     Google({
         clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -45,6 +46,10 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             if (account?.access_token) {
                 token.accessToken = account.access_token;
                 token.provider = account.provider;
+                // if (account.provider === "microsoft-entra-id") {
+                //     token.user = await fetchUserProfile(account.access_token);
+                //     console.log("token.user", token.user);
+                // }
             }
             return token;
         },
@@ -53,6 +58,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             if (token?.accessToken) {
                 session.accessToken = token.accessToken as string;
                 session.provider = token.provider as string;
+                // session.user = token.user as User & AdapterUser;
             }
             return session;
         },

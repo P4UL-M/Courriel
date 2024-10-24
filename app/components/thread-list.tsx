@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { PenSquare, Search } from 'lucide-react';
 import { NavMenu } from './menu';
 import { formatEmailString } from '@/lib/utils';
 import { Email } from '@/lib/db/types';
 import { ThreadActions } from '@/app/components/thread-actions';
+import UserIconWrapper, { UserIconSkeleton } from './user-icon';
 
 interface ThreadListProps {
   folderName: string;
@@ -43,6 +44,13 @@ export function ThreadHeader({
         >
           <Search size={18} />
         </Link>
+        <div
+          className='w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center'
+        >
+          <Suspense fallback={<UserIconSkeleton />}>
+            <UserIconWrapper />
+          </Suspense>
+        </div>
       </div>
     </div>
   );

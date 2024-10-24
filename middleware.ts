@@ -3,11 +3,21 @@ import { auth } from "@/auth";
 
 export default auth((req) => {
     if (!req.auth && req.nextUrl.pathname !== "/login") {
-        const newUrl = new URL("/login", req.nextUrl.origin);
-        return Response.redirect(newUrl);
+        if (req.nextUrl.pathname === "/") {
+            return Response.redirect("/login");
+        } else {
+            const newUrl = new URL(
+                "/login?" +
+                    new URLSearchParams({
+                        callbackUrl: req.nextUrl.pathname,
+                    }),
+                req.nextUrl.origin
+            );
+            return Response.redirect(newUrl);
+        }
     }
 });
 
 export const config = {
-    matcher: ["/profile", "/"], // Apply middleware only to /profile route
+    matcher: ["/", "/f/:path*"], // Apply middleware only to /profile route
 };

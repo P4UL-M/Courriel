@@ -5,7 +5,15 @@ const nextConfig = {
             hostname: 'lh3.googleusercontent.com',
         }],
     },
-    // runtime edge
+    async redirects() {
+        return [
+            {
+                source: '/',
+                destination: '/f/inbox',
+                permanent: false,
+            },
+        ];
+    },
 };
 
 export default nextConfig;

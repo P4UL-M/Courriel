@@ -1,4 +1,15 @@
 import * as microsoftgraph from "@microsoft/microsoft-graph-types";
+import { signOut } from "next-auth/react";
+
+export const fetchUserProfile = async (accessToken: string) => {
+    const response = await fetch("https://graph.microsoft.com/v1.0/me", {
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    });
+    const data = await response.json();
+    return data;
+};
 
 // Fetch emails from Microsoft Graph API
 export const fetchEmailsMicrosoft = async (accessToken: string, number: number = 10) => {
@@ -16,6 +27,14 @@ export const fetchEmailsMicrosoft = async (accessToken: string, number: number =
                 },
             }
         );
+
+        // check if the response is successful
+        if (!response.ok) {
+            if (response.status === 401) {
+                // Unauthorized, token is expired
+                signOut();
+            }
+        }
 
         const data = await response.json();
 

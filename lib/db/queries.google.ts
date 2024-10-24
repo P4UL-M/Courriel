@@ -1,3 +1,5 @@
+import { signOut } from "next-auth/react";
+
 export type GoogleEmail = gapi.client.gmail.Message;
 export type GoogleEmailResponse = Pick<gapi.client.gmail.Message, "id" | "threadId">;
 
@@ -41,6 +43,15 @@ export async function fetchGoogleEmailDetails(accessToken: string, emailId: stri
                 Authorization: `Bearer ${accessToken}`,
             },
         });
+
+        // check if the response is successful
+        if (!response.ok) {
+            if (response.status === 401) {
+                // Unauthorized, token is expired
+                console.log("Unauthorized, token is expired");
+                signOut();
+            }
+        }
 
         return await response.json();
     } catch (error) {
