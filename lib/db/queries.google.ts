@@ -3,10 +3,21 @@ import { signOut } from "next-auth/react";
 export type GoogleEmail = gapi.client.gmail.Message;
 export type GoogleEmailResponse = Pick<gapi.client.gmail.Message, "id" | "threadId">;
 
-export async function fetchGoogleEmails(accessToken: string, number: number = 10): Promise<GoogleEmail[]> {
+export async function fetchGoogleEmails(accessToken: string, number: number = 10, folder: string | undefined = undefined): Promise<GoogleEmail[]> {
     try {
         // Google API endpoint for fetching Gmail messages
-        const response = await fetch("https://www.googleapis.com/gmail/v1/users/me/messages", {
+        const params = new URLSearchParams({
+            maxResults: number.toString(),
+        });
+        if (folder) {
+            if (folder.indexOf(":") !== -1) {
+                params.set("q", folder);
+            } else {
+                params.set("labelIds", folder);
+            }
+        }
+
+        const response = await fetch("https://www.googleapis.com/gmail/v1/users/me/messages?" + params, {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
             },
@@ -16,7 +27,7 @@ export async function fetchGoogleEmails(accessToken: string, number: number = 10
 
         // Fetch the first 5 emails (you can adjust the number)
         return await Promise.all(
-            data.messages.slice(0, number).map(async (message: GoogleEmailResponse) => {
+            data.messages.map(async (message: GoogleEmailResponse) => {
                 const messageResponse = await fetch(`https://www.googleapis.com/gmail/v1/users/me/messages/${message.id}`, {
                     method: "GET",
                     headers: {
@@ -26,7 +37,6 @@ export async function fetchGoogleEmails(accessToken: string, number: number = 10
                 });
 
                 const messageData: gapi.client.gmail.Message = await messageResponse.json();
-
                 return messageData;
             })
         );

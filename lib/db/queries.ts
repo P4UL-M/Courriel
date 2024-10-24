@@ -2,9 +2,43 @@ import { fetchEmailDetailsMicrosoft, fetchEmailsMicrosoft } from "./queries.mycr
 import { Email } from "./types";
 import { decodeBase64, fetchGoogleEmailDetails, fetchGoogleEmails, getEmailBody, GoogleEmail } from "./queries.google";
 
-export const fetchEmails = async (provider: string, accessToken: string, number: number = 10) => {
+export enum MailFolder {
+    Inbox = "inbox",
+    Drafts = "drafts",
+    SentItems = "sent",
+    DeletedItems = "trash",
+    Starred = "starred",
+    Archive = "archive",
+}
+
+export enum ProviderName {
+    Microsoft = "microsoft-entra-id",
+    Google = "google",
+}
+
+const FolderTranslation = {
+    "microsoft-entra-id": {
+        [MailFolder.Inbox]: "inbox",
+        [MailFolder.Drafts]: "drafts",
+        [MailFolder.SentItems]: "sentitems",
+        [MailFolder.DeletedItems]: "deleteditems",
+        [MailFolder.Starred]: "starred",
+        [MailFolder.Archive]: "archive",
+    },
+    google: {
+        [MailFolder.Inbox]: "INBOX",
+        [MailFolder.Drafts]: "DRAFT",
+        [MailFolder.SentItems]: "SENT",
+        [MailFolder.DeletedItems]: "TRASH",
+        [MailFolder.Starred]: "STARRED",
+        [MailFolder.Archive]: "-in:inbox",
+    },
+};
+
+export const fetchEmails = async (provider: ProviderName, accessToken: string, number: number = 10, folder: MailFolder | undefined = undefined) => {
     if (provider === "microsoft-entra-id") {
-        const data = await fetchEmailsMicrosoft(accessToken, number);
+        const mailFolder = folder && FolderTranslation[provider][folder];
+        const data = await fetchEmailsMicrosoft(accessToken, number, mailFolder);
 
         if (!data) {
             return [];
@@ -30,7 +64,8 @@ export const fetchEmails = async (provider: string, accessToken: string, number:
         });
     } else if (provider === "google") {
         // fetch emails from Google API
-        const data = await fetchGoogleEmails(accessToken, number);
+        const mailFolder = folder && FolderTranslation[provider][folder];
+        const data = await fetchGoogleEmails(accessToken, number, mailFolder);
 
         if (!data) {
             return [];
@@ -51,8 +86,8 @@ export const fetchEmails = async (provider: string, accessToken: string, number:
                 recipients: email.payload?.headers
                     ?.filter((header) => header.name === "To")
                     .map((header) => ({
-                        name: header.value,
-                        email: header.value,
+                        email: header.value?.split("<")[1]?.replace(">", "") || header.value,
+                        name: header.value?.split("<")[0]?.trim() || header.value,
                     })),
                 subject: email.payload?.headers?.find((header) => header.name === "Subject")?.value || "No Subject",
                 body: email.snippet,
@@ -66,7 +101,7 @@ export const fetchEmails = async (provider: string, accessToken: string, number:
     }
 };
 
-export const fetchEmailsDetails = async (provider: string, accessToken: string, emailId: string) => {
+export const fetchEmailsDetails = async (provider: ProviderName, accessToken: string, emailId: string) => {
     if (provider === "microsoft-entra-id") {
         // fetch email details from Microsoft Graph API
         const data = await fetchEmailDetailsMicrosoft(accessToken, emailId);
@@ -109,8 +144,8 @@ export const fetchEmailsDetails = async (provider: string, accessToken: string, 
             recipients: data.payload?.headers
                 ?.filter((header) => header.name === "To")
                 .map((header) => ({
-                    name: header.value,
-                    email: header.value,
+                    email: header.value?.split("<")[1]?.replace(">", "") || header.value,
+                    name: header.value?.split("<")[0]?.trim() || header.value,
                 })),
             subject: data.payload?.headers?.find((header) => header.name === "Subject")?.value || "No Subject",
             body: emailBody,
@@ -123,7 +158,7 @@ export const fetchEmailsDetails = async (provider: string, accessToken: string, 
     }
 };
 
-export const fetchPrevAndNextEmails = async (provider: string, accessToken: string, emailId: string) => {
+export const fetchPrevAndNextEmails = async (provider: ProviderName, accessToken: string, emailId: string) => {
     if (provider === "microsoft-entra-id") {
         const data = await fetchEmailsMicrosoft(accessToken);
 

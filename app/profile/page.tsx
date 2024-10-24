@@ -5,8 +5,8 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
-import { fetchEmails } from "../../lib/db/queries";
-import { Email } from "../../lib/db/types";
+import { fetchEmails, ProviderName } from "@/lib/db/queries";
+import { Email } from "@/lib/db/types";
 
 export default function ProfilePage() {
 
@@ -16,9 +16,7 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (session?.accessToken) {
-            console.log("Fetching emails...");
-            console.log("provider", session.provider);
-            fetchEmails(session.provider || '', session.accessToken).then((data) => {
+            fetchEmails(session.provider as ProviderName || '', session.accessToken).then((data) => {
                 setEmails(data || []);
                 setLoading(false);
             });

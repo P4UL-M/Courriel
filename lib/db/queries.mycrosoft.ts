@@ -12,11 +12,11 @@ export const fetchUserProfile = async (accessToken: string) => {
 };
 
 // Fetch emails from Microsoft Graph API
-export const fetchEmailsMicrosoft = async (accessToken: string, number: number = 10) => {
+export const fetchEmailsMicrosoft = async (accessToken: string, number: number = 10, mailFolder: string | undefined = undefined) => {
     try {
         // Microsoft Graph API endpoint for fetching emails
         const response = await fetch(
-            "https://graph.microsoft.com/v1.0/me/messages?" +
+            `https://graph.microsoft.com/v1.0/me/${mailFolder && "mailFolders/" + mailFolder + "/"}messages?` +
                 new URLSearchParams({
                     $top: number.toString(),
                 }),

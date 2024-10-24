@@ -4,18 +4,16 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
+import { useEmailStore } from '../store/emailStore';
 
-type leftSidebarProps = {
-    upCallback?: string,
-    downCallback?: string,
-};
-
-export function LeftSidebar({
-    upCallback,
-    downCallback,
-}: leftSidebarProps) {
-    const { name } = useParams();
+export function LeftSidebar() {
+    const { name, id } = useParams();
     const router = useRouter();
+
+    // get id of next and previous thread
+    const idDecoded = decodeURIComponent(id as string);
+    const nextId = useEmailStore((state) => state.getNextThread(name as string, idDecoded as string));
+    const prevId = useEmailStore((state) => state.getPreviousThread(name as string, idDecoded as string));
 
     return (
         <div className="bg-gray-100 flex flex-col items-center py-6 space-y-4 pl-2 sm:pl-4 pr-2 sm:pr-24">
@@ -32,8 +30,8 @@ export function LeftSidebar({
                 size="lg"
                 variant="outline"
                 className="p-2 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
-                onClick={() => router.push(`/f/${name}/${upCallback}`)}
-                disabled={!upCallback}
+                onClick={() => router.push(`/f/${name}/${prevId}`)}
+                disabled={!prevId}
             >
                 <ChevronUp className="size-4 sm:size-5" />
             </Button>
@@ -41,8 +39,8 @@ export function LeftSidebar({
                 size="lg"
                 variant="outline"
                 className="p-2 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
-                onClick={() => router.push(`/f/${name}/${downCallback}`)}
-                disabled={!downCallback}
+                onClick={() => router.push(`/f/${name}/${nextId}`)}
+                disabled={!nextId}
             >
                 <ChevronDown className="size-4 sm:size-5" />
             </Button>

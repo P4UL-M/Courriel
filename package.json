@@ -22,7 +22,8 @@
     "radix-ui": "^1.0.1",
     "react": "^18",
     "react-dom": "^18",
-    "tailwind-merge": "^2.5.4"
+    "tailwind-merge": "^2.5.4",
+    "zustand": "^5.0.0"
   },
   "devDependencies": {
     "@microsoft/microsoft-graph-types": "^2.40.0",
