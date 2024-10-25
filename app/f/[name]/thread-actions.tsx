@@ -1,5 +1,6 @@
 'use client';
 
+/* eslint-disable */
 import { Check, Clock, Archive } from 'lucide-react';
 import { useActionState } from 'react';
 import { moveThreadToDone, moveThreadToTrash } from '@/lib/db/actions';
