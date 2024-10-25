@@ -3,6 +3,10 @@ import { providerMap, signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 import { redirect } from 'next/navigation';
 
+export const metadata = {
+    title: "Login - Courriel",
+};
+
 export default function LoginPage(props: {
     searchParams: { callbackUrl: string | undefined }
 }) {
