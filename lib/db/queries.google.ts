@@ -113,15 +113,15 @@ function toUrlSafeBase64(base64: string): string {
     return base64.replace(/\-/g, "+").replace(/\_/g, "/").replace(/=+$/, "");
 }
 
-const getAttachments = (parts: any) => {
-    let attachments = [];
+const getAttachments = (parts: gapi.client.gmail.MessagePart[]) => {
+    let attachments: microsoftgraph.FileAttachment[] = [];
 
     for (const part of parts) {
         // Check if the part is an attachment
-        if (part.filename && part.body.attachmentId) {
+        if (part.filename && part.body?.attachmentId) {
             attachments.push({
-                attachmentId: part.body.attachmentId,
-                filename: part.filename,
+                id: part.body.attachmentId,
+                name: part.filename,
                 contentType: part.mimeType,
                 contentId: part.headers?.find((header) => header.name === "Content-ID")?.value || null,
                 contentLocation: part.headers?.find((header) => header.name === "Content-Location")?.value || null,
@@ -157,8 +157,8 @@ export const fetchEmailAttachmentsGmail = async (accessToken: string, emailId: s
         console.log("Attachments:", attachments);
 
         // Step 2: Fetch each attachment by its ID
-        const attachmentPromises = attachments.map(async (attachment: any) => {
-            const attachmentResponse = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${emailId}/attachments/${attachment.attachmentId}`, {
+        const attachmentPromises = attachments.map(async (attachment: microsoftgraph.FileAttachment) => {
+            const attachmentResponse = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${emailId}/attachments/${attachment.id}`, {
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },
@@ -166,8 +166,8 @@ export const fetchEmailAttachmentsGmail = async (accessToken: string, emailId: s
             const attachmentData = await attachmentResponse.json();
 
             return {
-                id: attachment.attachmentId,
-                name: attachment.filename,
+                id: attachment.id,
+                name: attachment.name,
                 contentId: attachment.contentId,
                 contentType: attachment.contentType,
                 contentBytes: toUrlSafeBase64(attachmentData.data),
@@ -177,7 +177,6 @@ export const fetchEmailAttachmentsGmail = async (accessToken: string, emailId: s
                 lastModifiedDateTime: new Date().toISOString(),
             } as FileAttachment;
         });
-        console.log("Attachments:", attachments);
         return await Promise.all(attachmentPromises);
     } catch (error) {
         console.error("Error fetching email attachments:", error);
