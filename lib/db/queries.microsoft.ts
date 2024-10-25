@@ -72,3 +72,17 @@ export const fetchEmailAttachmentsMicrosoft = async (accessToken: string, emailI
         return [];
     }
 };
+
+export const fetchEmailExistMicrosoft = async (accessToken: string, emailId: string) => {
+    try {
+        const response = await fetch(`https://graph.microsoft.com/v1.0/me/messages/${emailId}?$select=id`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+        return response.ok;
+    } catch (error) {
+        console.error("Error fetching email existence:", error);
+        return false;
+    }
+};

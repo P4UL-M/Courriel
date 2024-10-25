@@ -4,14 +4,17 @@ import { SessionProvider, useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
 import { fetchEmailAttachments, ProviderName } from '@/lib/db/queries';
 import { File } from 'lucide-react'; // Import the file icon from lucide-react
+import { FileAttachment } from '@microsoft/microsoft-graph-types';
+import Image from 'next/image';
 
 
 type EmailAttachmentsProps = {
     emailId: string;
+    setCidAttachments?: (attachments: FileAttachment[]) => void;
 };
 
 
-const ThreadAttachments = ({ emailId }: EmailAttachmentsProps) => {
+const ThreadAttachments = ({ emailId, setCidAttachments }: EmailAttachmentsProps) => {
     const [attachments, setAttachments] = useState<microsoftgraph.FileAttachment[]>([]);
     const { data: session } = useSession(); // Get provider and access token from auth.js
     const accessToken = session?.accessToken;
@@ -37,6 +40,13 @@ const ThreadAttachments = ({ emailId }: EmailAttachmentsProps) => {
 
         fetchAttachments();
     }, [emailId, provider, accessToken]);
+
+    useEffect(() => {
+        if (setCidAttachments) {
+            const cidAttachments = attachments.filter((attachment) => attachment.isInline);
+            setCidAttachments(cidAttachments);
+        }
+    }, [attachments, setCidAttachments]);
 
     const isImage = (attachment: microsoftgraph.FileAttachment) => {
         // Check if the MIME type of the attachment starts with 'image/'
@@ -64,10 +74,11 @@ const ThreadAttachments = ({ emailId }: EmailAttachmentsProps) => {
                 attachments.map((attachment, index) => (
                     <div key={index} className="mb-4 attachment-item">
                         {isImage(attachment) ? (
-                            <img
+                            <Image
                                 src={getAttachmentUrl(attachment)}
                                 alt={attachment.name || 'Attachment'}
-                                className="max-w-[200px] max-h-[200px] block mb-2 attachment-image"
+                                width={300}
+                                height={300}
                             />
                         ) : (
                             <a

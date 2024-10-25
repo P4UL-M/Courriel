@@ -1,5 +1,5 @@
-import { fetchEmailAttachmentsMicrosoft, fetchEmailDetailsMicrosoft, fetchEmailsMicrosoft } from "./queries.microsoft";
-import { Email, Attachment } from "./types";
+import { fetchEmailAttachmentsMicrosoft, fetchEmailDetailsMicrosoft, fetchEmailExistMicrosoft, fetchEmailsMicrosoft } from "./queries.microsoft";
+import { Email } from "./types";
 import { decodeBase64, fetchGoogleEmailDetails, fetchGoogleEmails, getEmailBody, GoogleEmail } from "./queries.google";
 
 export enum MailFolder {
@@ -174,5 +174,19 @@ export const fetchEmailAttachments = async (provider: ProviderName, accessToken:
     } else {
         console.error("Unknown provider:", provider);
         return [];
+    }
+};
+
+export const fetchEmailExist = async (provider: ProviderName, accessToken: string, emailId: string) => {
+    if (provider === "microsoft-entra-id") {
+        // fetch email details from Microsoft Graph API
+        return await fetchEmailExistMicrosoft(accessToken, emailId);
+    } else if (provider === "google") {
+        // fetch email details from Google API
+        const data = await fetchGoogleEmailDetails(accessToken, emailId);
+        return !!data.id;
+    } else {
+        console.error("Unknown provider:", provider);
+        return false;
     }
 };
