@@ -5,6 +5,7 @@ import { ThreadActions } from '@/app/components/thread-actions';
 import { auth } from '@/auth';
 import { ThreadHeader } from '@/app/components/thread-list';
 import ShadowWrapper from '@/components/ui/shadow-wrapper';
+import ThreadAttachments from '../../../components/thread-attachments';
 
 export default async function EmailPage({
   params,
@@ -13,14 +14,11 @@ export default async function EmailPage({
 }) {
   const id = (await params).id;
   const session = await auth();
-  // const { nextId, prevId } = await fetchPrevAndNextEmails(session?.provider || '', session?.accessToken || '', id);
   const thread = await fetchEmailsDetails(session?.provider as ProviderName || '', session?.accessToken || '', id);
 
   if (!thread) {
     return notFound();
   }
-
-  console.log('session', session?.user?.email, thread.recipients[0].email);
 
   return (
     <div className="flex-grow h-full">
@@ -58,6 +56,9 @@ export default async function EmailPage({
                 <div className="py-5">
                   {/* {thread.body} */}
                   <ShadowWrapper content={thread.body as string} />
+                </div>
+                <div className="flex items-center justify-between">
+                  <ThreadAttachments emailId={thread.id} />
                 </div>
               </div>
             </div>

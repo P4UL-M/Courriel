@@ -1,5 +1,5 @@
-import { fetchEmailDetailsMicrosoft, fetchEmailsMicrosoft } from "./queries.mycrosoft";
-import { Email } from "./types";
+import { fetchEmailAttachmentsMicrosoft, fetchEmailDetailsMicrosoft, fetchEmailsMicrosoft } from "./queries.microsoft";
+import { Email, Attachment } from "./types";
 import { decodeBase64, fetchGoogleEmailDetails, fetchGoogleEmails, getEmailBody, GoogleEmail } from "./queries.google";
 
 export enum MailFolder {
@@ -106,6 +106,10 @@ export const fetchEmailsDetails = async (provider: ProviderName, accessToken: st
         // fetch email details from Microsoft Graph API
         const data = await fetchEmailDetailsMicrosoft(accessToken, emailId);
 
+        let content = data.body?.content || "";
+        const scriptRegex = /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi;
+        content = content.replace(scriptRegex, "");
+
         // translate to Email type
         return {
             id: data.id,
@@ -118,7 +122,7 @@ export const fetchEmailsDetails = async (provider: ProviderName, accessToken: st
                 email: recipient.emailAddress?.address,
             })),
             subject: data.subject,
-            body: data.body?.content as string,
+            body: content,
             hasAttachments: data.hasAttachments,
             sentDate: new Date(data.sentDateTime || 0),
         } as Email;
@@ -134,6 +138,8 @@ export const fetchEmailsDetails = async (provider: ProviderName, accessToken: st
         if (data.payload?.parts) {
             emailBody = getEmailBody(data.payload.parts);
         }
+        const scriptRegex = /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi;
+        emailBody = emailBody.replace(scriptRegex, "");
 
         return {
             id: data.id,
@@ -158,33 +164,15 @@ export const fetchEmailsDetails = async (provider: ProviderName, accessToken: st
     }
 };
 
-export const fetchPrevAndNextEmails = async (provider: ProviderName, accessToken: string, emailId: string) => {
+export const fetchEmailAttachments = async (provider: ProviderName, accessToken: string, emailId: string) => {
     if (provider === "microsoft-entra-id") {
-        const data = await fetchEmailsMicrosoft(accessToken);
-
-        if (!data) {
-            return {};
-        }
-
-        const emailIndex = data.findIndex((email) => email.id === emailId);
-        return {
-            prevId: data[emailIndex + 1]?.id,
-            nextId: data[emailIndex - 1]?.id,
-        };
+        // fetch email attachments from Microsoft Graph API
+        return await fetchEmailAttachmentsMicrosoft(accessToken, emailId);
     } else if (provider === "google") {
-        const data = await fetchGoogleEmails(accessToken);
-
-        if (!data) {
-            return {};
-        }
-
-        const emailIndex = data.findIndex((email) => email.id === emailId);
-        return {
-            prevId: data[emailIndex + 1]?.id,
-            nextId: data[emailIndex - 1]?.id,
-        };
+        // Google API does not support fetching attachments directly
+        return [];
     } else {
         console.error("Unknown provider:", provider);
-        return {};
+        return [];
     }
 };

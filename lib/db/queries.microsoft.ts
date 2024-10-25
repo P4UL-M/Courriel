@@ -58,3 +58,17 @@ export const fetchEmailDetailsMicrosoft = async (accessToken: string, emailId: s
         return {} as microsoftgraph.Message;
     }
 };
+
+export const fetchEmailAttachmentsMicrosoft = async (accessToken: string, emailId: string) => {
+    try {
+        const response = await fetch(`https://graph.microsoft.com/v1.0/me/messages/${emailId}/attachments`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+        return (await response.json()).value as microsoftgraph.FileAttachment[];
+    } catch (error) {
+        console.error("Error fetching email attachments:", error);
+        return [];
+    }
+};

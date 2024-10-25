@@ -30,60 +30,12 @@ export interface Email {
     hasAttachments: boolean; // boolean -> boolean
 }
 
-// Table: Folders
-export interface Folder {
-    id: number; // serial -> number
-    name: string; // varchar(50), not null
-}
-
-// Table: UserFolders
-export interface UserFolder {
-    id: number; // serial -> number
-    userId: number; // integer -> number
-    folderId: number; // integer -> number
-}
-
-// Table: ThreadFolders
-export interface ThreadFolder {
-    id: number; // serial -> number
-    threadId: number; // integer -> number
-    folderId: number; // integer -> number
-}
-
-// Relationships: User
-export interface UserRelations {
-    sentEmails: Email[]; // Many-to-many relationship to emails as sender
-    receivedEmails: Email[]; // Many-to-many relationship to emails as recipient
-    userFolders: UserFolder[]; // Many-to-one relationship to userFolders
-}
-
-// Relationships: Thread
-export interface ThreadRelations {
-    emails: Email[]; // Many-to-one relationship to emails
-    threadFolders: ThreadFolder[]; // Many-to-one relationship to threadFolders
-}
-
-// Relationships: Email
-export interface EmailRelations {
-    thread: Thread; // One-to-one relationship to thread
-    sender: User; // One-to-one relationship to sender (user)
-    recipient: User; // One-to-one relationship to recipient (user)
-}
-
-// Relationships: Folder
-export interface FolderRelations {
-    userFolders: UserFolder[]; // Many-to-one relationship to userFolders
-    threadFolders: ThreadFolder[]; // Many-to-one relationship to threadFolders
-}
-
-// Relationships: UserFolder
-export interface UserFolderRelations {
-    user: User; // One-to-one relationship to user
-    folder: Folder; // One-to-one relationship to folder
-}
-
-// Relationships: ThreadFolder
-export interface ThreadFolderRelations {
-    thread: Thread; // One-to-one relationship to thread
-    folder: Folder; // One-to-one relationship to folder
+// Table: Attachments
+export interface Attachment {
+    id: string;
+    emailId: string;
+    name: string;
+    size: number;
+    url?: string;
+    data?: string;
 }
