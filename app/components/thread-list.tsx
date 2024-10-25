@@ -2,14 +2,14 @@
 
 import { useState, useEffect, Suspense, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { PenSquare, Search } from 'lucide-react';
+import { PenSquare, RefreshCw, Search } from 'lucide-react';
 import { NavMenu } from './menu';
 import { formatEmailString } from '@/lib/utils';
 import { ThreadActions } from '@/app/components/thread-actions';
 import UserIconWrapper, { UserIconSkeleton } from './user-icon';
 import { useEmailManager } from '../hooks/useEmailManager';
 import { useSession } from 'next-auth/react';
-import { ProviderName } from '../../lib/db/queries';
+import { ProviderName } from '@/lib/db/queries';
 
 interface ThreadListProps {
   folderName: string;
@@ -19,10 +19,22 @@ interface ThreadListProps {
 export function ThreadHeader({
   folderName,
   count,
+  refreshCallback,
 }: {
   folderName: string;
   count?: number | undefined;
+  refreshCallback?: () => Promise<void>;
 }) {
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = useCallback(() => {
+    if (isRefreshing || !refreshCallback) return;
+
+    setIsRefreshing(true);
+    refreshCallback().finally(() => setIsRefreshing(false));
+  }, [isRefreshing, refreshCallback]);
+
+
   return (
     <div className="flex items-center justify-between p-4 border-b border-gray-200 h-[70px]">
       <div className="flex items-center">
@@ -31,6 +43,7 @@ export function ThreadHeader({
           {folderName}
           <span className="ml-2 text-sm text-gray-400">{count}</span>
         </h1>
+
       </div>
       <div className="flex items-center space-x-2">
         <Link
@@ -45,6 +58,18 @@ export function ThreadHeader({
         >
           <Search size={18} />
         </Link>
+        {/* Refresh Button with Animation */}
+        {refreshCallback && (
+          <button
+            onClick={handleRefresh}
+            className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors mx-1"
+          >
+            <RefreshCw
+              size={18}
+              className={`transition-transform ${isRefreshing ? 'animate-spin' : ''}`}
+            />
+          </button>
+        )}
         <div
           className='w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center'
         >
@@ -63,7 +88,7 @@ export function ThreadList({ folderName }: ThreadListProps) {
   const sentinelRef = useRef<HTMLDivElement | null>(null); // Sentinel for intersection
 
   const { data: session } = useSession();
-  const { emails: threads, fetchNextEmails, loading } = useEmailManager(session?.provider as ProviderName, session?.accessToken || '', folderName);
+  const { emails: threads, fetchNextEmails, loading, checkNewEmails } = useEmailManager(session?.provider as ProviderName, session?.accessToken || '', folderName);
 
   // Intersection Observer callback to fetch next emails
   const onIntersection = useCallback(
@@ -116,7 +141,7 @@ export function ThreadList({ folderName }: ThreadListProps) {
 
   return (
     <div className="flex-grow border-r border-gray-200 overflow-hidden">
-      <ThreadHeader folderName={folderName} count={threads.length} />
+      <ThreadHeader folderName={folderName} count={threads.length} refreshCallback={checkNewEmails} />
       <div className="overflow-auto h-[calc(100vh-64px)]">
         {threads.map((thread) => {
           return (

@@ -11,7 +11,7 @@ export const useEmailManager = (provider: ProviderName, accessToken: string, fol
     const fetchInitialEmails = useCallback(async () => {
         try {
             // Fetch 10 emails for the initial load
-            const { data, nextLink } = await fetchEmails(provider, accessToken, folder as MailFolder, 20);
+            const { data, nextLink } = await fetchEmails(provider, accessToken, folder as MailFolder, 5);
             setEmails(data);
             if (nextLink) {
                 setNextIndex(nextLink); // Update the index
@@ -41,20 +41,8 @@ export const useEmailManager = (provider: ProviderName, accessToken: string, fol
 
     // Check for new emails and add them to the top
     const checkNewEmails = useCallback(async () => {
-        setLoading(true);
-        try {
-            const { data: latestEmails } = await fetchEmails(provider, accessToken, folder as MailFolder, 10);
-            const newEmails = latestEmails.filter((latest) => !emails.some((existing) => existing.id === latest.id));
-
-            if (newEmails.length > 0) {
-                setEmails((prevEmails) => [...newEmails, ...prevEmails]);
-            }
-        } catch (error) {
-            console.error("Error checking for new emails:", error);
-        } finally {
-            setLoading(false);
-        }
-    }, [provider, accessToken, emails, folder, setLoading]);
+        await fetchInitialEmails();
+    }, [fetchInitialEmails]);
 
     useEffect(() => {
         fetchInitialEmails();
