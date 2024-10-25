@@ -11,7 +11,7 @@ export default function LoginPage(props: {
 
             {/* App Title */}
             <header className="absolute top-0 left-0 w-full text-center py-4 bg-white bg-opacity-90 backdrop-blur-lg shadow-md">
-                <h1 className="text-4xl font-bold text-gray-800">Email App</h1>
+                <h1 className="text-4xl font-bold text-gray-800">Courriel</h1>
             </header>
 
             <div className="relative z-10 bg-white p-10 rounded-xl shadow-2xl w-full max-w-md">
