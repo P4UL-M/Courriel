@@ -10,6 +10,7 @@ import UserIconWrapper, { UserIconSkeleton } from './user-icon';
 import { useEmailManager } from '../hooks/useEmailManager';
 import { useSession } from 'next-auth/react';
 import { ProviderName } from '@/lib/db/queries';
+import { useEmailStore } from '../store/emailStore';
 
 interface ThreadListProps {
   folderName: string;
@@ -89,6 +90,7 @@ export function ThreadList({ folderName }: ThreadListProps) {
 
   const { data: session } = useSession();
   const { emails: threads, fetchNextEmails, loading, checkNewEmails } = useEmailManager(session?.provider as ProviderName, session?.accessToken || '', folderName);
+  const setThreadsByFolder = useEmailStore(state => state.setThreadsByFolder);
 
   // Intersection Observer callback to fetch next emails
   const onIntersection = useCallback(
@@ -122,6 +124,10 @@ export function ThreadList({ folderName }: ThreadListProps) {
       window.removeEventListener('resize', checkIsMobile);
     };
   }, []);
+
+  useEffect(() => {
+    setThreadsByFolder(folderName, threads.map((thread) => thread.id));
+  }, [folderName, threads, setThreadsByFolder]);
 
   const handleMouseEnter = (threadId: string) => {
     if (!isMobile) {
