@@ -11,7 +11,7 @@ export const useEmailManager = (provider: ProviderName, accessToken: string, fol
     const fetchInitialEmails = useCallback(async () => {
         try {
             // Fetch 10 emails for the initial load
-            const { data, nextLink } = await fetchEmails(provider, accessToken, folder as MailFolder, 5);
+            const { data, nextLink } = await fetchEmails(provider, accessToken, folder as MailFolder, 20);
             setEmails(data);
             if (nextLink) {
                 setNextIndex(nextLink); // Update the index

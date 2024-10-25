@@ -17,8 +17,6 @@ export async function fetchGoogleEmails(
             ...(nextIndex && { pageToken: nextIndex }),
         });
 
-        console.log("params:", params);
-
         if (folder) {
             if (folder.includes(":")) params.set("q", folder);
             else params.set("labelIds", folder);
@@ -169,12 +167,8 @@ export const fetchEmailAttachmentsGmail = async (accessToken: string, emailId: s
         });
         const emailData = await emailResponse.json();
 
-        console.log("Email data:", emailData.payload);
-
         // Extract attachment metadata from email payload
         const attachments = getAttachments(emailData.payload.parts || []);
-
-        console.log("Attachments:", attachments);
 
         // Step 2: Fetch each attachment by its ID
         const attachmentPromises = attachments.map(async (attachment: microsoftgraph.FileAttachment) => {

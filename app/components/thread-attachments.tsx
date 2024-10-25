@@ -28,7 +28,6 @@ const ThreadAttachments = ({ emailId, setCidAttachments }: EmailAttachmentsProps
             setLoading(true);
             try {
                 const attachmentsData = await fetchEmailAttachments(provider as ProviderName, accessToken, emailId);
-                console.log('Attachments:', attachmentsData);
                 setAttachments(attachmentsData);
             } catch (error) {
                 console.error('Error fetching attachments:', error);
