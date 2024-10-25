@@ -50,7 +50,7 @@ export const fetchEmails = async (
         return await fetchEmailsMicrosoft(accessToken, number, mailFolder, nextIndex);
     } else if (provider === "google") {
         const mailFolder = folder && FolderTranslation[provider][folder];
-        return { data: await fetchGoogleEmails(accessToken, number, mailFolder, nextIndex) };
+        return await fetchGoogleEmails(accessToken, number, mailFolder, nextIndex);
     } else {
         console.error("Unknown provider:", provider);
         return { data: [] };
