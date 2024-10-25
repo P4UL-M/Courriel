@@ -1,3 +1,4 @@
+import { FileAttachment } from "@microsoft/microsoft-graph-types";
 import { signOut } from "next-auth/react";
 
 export type GoogleEmail = gapi.client.gmail.Message;
@@ -106,4 +107,80 @@ export const getEmailBody = (parts: gapi.client.gmail.MessagePart[]): string => 
 
     // Return HTML if found, otherwise fallback to plain text
     return htmlBody || textBody;
+};
+
+function toUrlSafeBase64(base64: string): string {
+    return base64.replace(/\-/g, "+").replace(/\_/g, "/").replace(/=+$/, "");
+}
+
+const getAttachments = (parts: any) => {
+    let attachments = [];
+
+    for (const part of parts) {
+        // Check if the part is an attachment
+        if (part.filename && part.body.attachmentId) {
+            attachments.push({
+                attachmentId: part.body.attachmentId,
+                filename: part.filename,
+                contentType: part.mimeType,
+                contentId: part.headers?.find((header) => header.name === "Content-ID")?.value || null,
+                contentLocation: part.headers?.find((header) => header.name === "Content-Location")?.value || null,
+                isInline: part.headers?.find((header) => header.name === "Content-Disposition")?.value === "inline",
+            });
+        }
+
+        // If the part has its own parts, recursively check them
+        if (part.parts) {
+            attachments = attachments.concat(getAttachments(part.parts));
+        }
+    }
+
+    return attachments;
+};
+
+// Function to extract email attachments
+export const fetchEmailAttachmentsGmail = async (accessToken: string, emailId: string) => {
+    try {
+        // Step 1: Fetch the email to get attachment IDs
+        const emailResponse = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${emailId}`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
+        });
+        const emailData = await emailResponse.json();
+
+        console.log("Email data:", emailData.payload);
+
+        // Extract attachment metadata from email payload
+        const attachments = getAttachments(emailData.payload.parts || []);
+
+        console.log("Attachments:", attachments);
+
+        // Step 2: Fetch each attachment by its ID
+        const attachmentPromises = attachments.map(async (attachment: any) => {
+            const attachmentResponse = await fetch(`https://gmail.googleapis.com/gmail/v1/users/me/messages/${emailId}/attachments/${attachment.attachmentId}`, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            const attachmentData = await attachmentResponse.json();
+
+            return {
+                id: attachment.attachmentId,
+                name: attachment.filename,
+                contentId: attachment.contentId,
+                contentType: attachment.contentType,
+                contentBytes: toUrlSafeBase64(attachmentData.data),
+                size: attachmentData.size,
+                contentLocation: attachment.contentLocation,
+                isInline: attachment.isInline,
+                lastModifiedDateTime: new Date().toISOString(),
+            } as FileAttachment;
+        });
+        console.log("Attachments:", attachments);
+        return await Promise.all(attachmentPromises);
+    } catch (error) {
+        console.error("Error fetching email attachments:", error);
+        return [];
+    }
 };

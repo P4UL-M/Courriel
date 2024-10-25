@@ -66,13 +66,12 @@ const ThreadContent = ({ threadId }: ThreadContentProps) => {
             return;
         }
 
-        const cidRegex = /cid:([a-zA-Z0-9@.]+)/g;
+        const cidRegex = /cid:([^'">]+)/g;
         let match: RegExpExecArray | null;
 
         let body = thread.body;
 
         while ((match = cidRegex.exec(body!)) !== null) {
-            console.log(match);
             const cid = match[1];
             const attachment = cidAttachments.find((attachment) => attachment.contentId === cid);
             if (attachment) {
@@ -132,9 +131,9 @@ const ThreadContent = ({ threadId }: ThreadContentProps) => {
                             {thread.sender.name === session?.user?.email ?
                                 'Me'
                                 : thread.sender.name || thread.sender.email} to{' '}
-                            {thread.recipients[0].email === session?.user?.email
+                            {thread?.recipients?.length != 0 && (thread.recipients[0].email === session?.user?.email
                                 ? 'Me'
-                                : thread.recipients[0].name || thread.recipients[0].email}
+                                : thread.recipients[0].name || thread.recipients[0].email)}
                         </div>
                         <div className="text-sm text-gray-500">
                             {new Date(thread.sentDate!).toLocaleString()}
@@ -148,6 +147,8 @@ const ThreadContent = ({ threadId }: ThreadContentProps) => {
                         <ThreadAttachments emailId={thread.id} setCidAttachments={setCidAttachments} />
                     </div>
                 </div>
+                {/* make a empty space for scroll view */}
+                <div className="h-20"></div>
             </div>
         </div>
     );

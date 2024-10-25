@@ -27,7 +27,6 @@ const ThreadAttachments = ({ emailId, setCidAttachments }: EmailAttachmentsProps
 
             setLoading(true);
             try {
-                console.log('Fetching attachments for email:', emailId);
                 const attachmentsData = await fetchEmailAttachments(provider as ProviderName, accessToken, emailId);
                 console.log('Attachments:', attachmentsData);
                 setAttachments(attachmentsData);
@@ -42,9 +41,8 @@ const ThreadAttachments = ({ emailId, setCidAttachments }: EmailAttachmentsProps
     }, [emailId, provider, accessToken]);
 
     useEffect(() => {
-        if (setCidAttachments) {
-            const cidAttachments = attachments.filter((attachment) => attachment.isInline);
-            setCidAttachments(cidAttachments);
+        if (attachments.length && setCidAttachments) {
+            setCidAttachments(attachments.filter((attachment) => attachment.isInline));
         }
     }, [attachments, setCidAttachments]);
 
@@ -79,13 +77,14 @@ const ThreadAttachments = ({ emailId, setCidAttachments }: EmailAttachmentsProps
                                 alt={attachment.name || 'Attachment'}
                                 width={300}
                                 height={300}
+                                className="max-w-full h-auto object-cover" // Makes the image responsive
                             />
                         ) : (
                             <a
                                 href={getAttachmentUrl(attachment)}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center underline text-gray-800 hover:text-blue-600 attachment-file"
+                                className="flex items-center underline text-gray-800 hover:text-blue-600"
                             >
                                 <File className="w-5 h-5 mr-2 file-icon" /> {/* Lucide-react File icon */}
                                 {attachment.name}
@@ -100,10 +99,10 @@ const ThreadAttachments = ({ emailId, setCidAttachments }: EmailAttachmentsProps
     );
 };
 
-const ThreadAttachmentsWrapper = ({ emailId }: EmailAttachmentsProps) => {
+const ThreadAttachmentsWrapper = ({ emailId, setCidAttachments }: EmailAttachmentsProps) => {
     return (
         <SessionProvider>
-            <ThreadAttachments emailId={emailId} />
+            <ThreadAttachments emailId={emailId} setCidAttachments={setCidAttachments} />
         </SessionProvider>
     );
 }

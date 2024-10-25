@@ -1,6 +1,6 @@
 import { fetchEmailAttachmentsMicrosoft, fetchEmailDetailsMicrosoft, fetchEmailExistMicrosoft, fetchEmailsMicrosoft } from "./queries.microsoft";
 import { Email } from "./types";
-import { decodeBase64, fetchGoogleEmailDetails, fetchGoogleEmails, getEmailBody, GoogleEmail } from "./queries.google";
+import { decodeBase64, fetchEmailAttachmentsGmail, fetchGoogleEmailDetails, fetchGoogleEmails, getEmailBody, GoogleEmail } from "./queries.google";
 
 export enum MailFolder {
     Inbox = "inbox",
@@ -117,10 +117,11 @@ export const fetchEmailsDetails = async (provider: ProviderName, accessToken: st
                 name: data.sender?.emailAddress?.name,
                 email: data.sender?.emailAddress?.address?.toLocaleLowerCase(),
             },
-            recipients: data.toRecipients?.map((recipient) => ({
-                name: recipient.emailAddress?.name,
-                email: recipient.emailAddress?.address?.toLocaleLowerCase(),
-            })),
+            recipients:
+                data.toRecipients?.map((recipient) => ({
+                    name: recipient.emailAddress?.name,
+                    email: recipient.emailAddress?.address?.toLocaleLowerCase(),
+                })) || null,
             subject: data.subject,
             body: content,
             hasAttachments: data.hasAttachments,
@@ -170,7 +171,7 @@ export const fetchEmailAttachments = async (provider: ProviderName, accessToken:
         return await fetchEmailAttachmentsMicrosoft(accessToken, emailId);
     } else if (provider === "google") {
         // Google API does not support fetching attachments directly
-        return [];
+        return await fetchEmailAttachmentsGmail(accessToken, emailId);
     } else {
         console.error("Unknown provider:", provider);
         return [];
