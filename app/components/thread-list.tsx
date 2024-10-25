@@ -1,17 +1,18 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { PenSquare, Search } from 'lucide-react';
 import { NavMenu } from './menu';
 import { formatEmailString } from '@/lib/utils';
-import { Email } from '@/lib/db/types';
 import { ThreadActions } from '@/app/components/thread-actions';
 import UserIconWrapper, { UserIconSkeleton } from './user-icon';
+import { useEmailManager } from '../hooks/useEmailManager';
+import { useSession } from 'next-auth/react';
+import { ProviderName } from '../../lib/db/queries';
 
 interface ThreadListProps {
   folderName: string;
-  threads: Email[];
   searchQuery?: string;
 }
 
@@ -56,9 +57,33 @@ export function ThreadHeader({
   );
 }
 
-export function ThreadList({ folderName, threads }: ThreadListProps) {
+export function ThreadList({ folderName }: ThreadListProps) {
   const [hoveredThread, setHoveredThread] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement | null>(null); // Sentinel for intersection
+
+  const { data: session } = useSession();
+  const { emails: threads, fetchNextEmails, loading } = useEmailManager(session?.provider as ProviderName, session?.accessToken || '', folderName);
+
+  // Intersection Observer callback to fetch next emails
+  const onIntersection = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      if (entries[0].isIntersecting) {
+        fetchNextEmails(); // Call fetch function when sentinel is visible
+      }
+    },
+    [fetchNextEmails]
+  );
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(onIntersection, { threshold: 1.0 });
+    const sentinel = sentinelRef.current;
+    if (sentinel) observer.observe(sentinel);
+
+    return () => {
+      if (sentinel) observer.unobserve(sentinel);
+    };
+  }, [onIntersection]);
 
   useEffect(() => {
     const checkIsMobile = () => {
@@ -84,6 +109,10 @@ export function ThreadList({ folderName, threads }: ThreadListProps) {
       setHoveredThread(null);
     }
   };
+
+  if (!session) {
+    return null;
+  }
 
   return (
     <div className="flex-grow border-r border-gray-200 overflow-hidden">
@@ -129,6 +158,25 @@ export function ThreadList({ folderName, threads }: ThreadListProps) {
             </Link>
           );
         })}
+
+        {/* Sentinel div at the bottom */}
+        <div ref={sentinelRef} className="h-1" />
+
+        {/* Skeleton Loader */}
+        {loading && Array.from({ length: 3 }).map((_, index) => (
+          <div key={index} className="flex items-center border-b border-gray-100 animate-pulse">
+            <div className="flex-grow flex items-center overflow-hidden p-4">
+              <div className="w-[200px] flex-shrink-0 mr-4 h-6 bg-gray-200 rounded"></div>
+              <div className="flex-grow flex items-center overflow-hidden">
+                <div className="h-6 bg-gray-200 rounded min-w-[175px] max-w-[400px] mr-2"></div>
+                <div className="flex-grow h-6 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+            <div className="flex items-center justify-end flex-shrink-0 w-40 p-4">
+              <div className="h-6 bg-gray-200 rounded w-16"></div>
+            </div>
+          </div>
+        ))}
       </div>
     </div >
   );

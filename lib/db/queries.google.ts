@@ -1,48 +1,60 @@
 import { FileAttachment } from "@microsoft/microsoft-graph-types";
 import { signOut } from "next-auth/react";
+import { Email } from "./types";
 
 export type GoogleEmail = gapi.client.gmail.Message;
 export type GoogleEmailResponse = Pick<gapi.client.gmail.Message, "id" | "threadId">;
-
-export async function fetchGoogleEmails(accessToken: string, number: number = 10, folder: string | undefined = undefined): Promise<GoogleEmail[]> {
+// Updated Google email fetcher with consistent response for Email type
+export async function fetchGoogleEmails(accessToken: string, number: number = 10, folder: string | undefined = undefined, nextIndex: string | undefined = undefined): Promise<Email[]> {
     try {
-        // Google API endpoint for fetching Gmail messages
         const params = new URLSearchParams({
             maxResults: number.toString(),
+            ...(nextIndex && { startIndex: nextIndex }),
         });
+
+        console.log("params:", params);
+
         if (folder) {
-            if (folder.indexOf(":") !== -1) {
-                params.set("q", folder);
-            } else {
-                params.set("labelIds", folder);
-            }
+            if (folder.includes(":")) params.set("q", folder);
+            else params.set("labelIds", folder);
         }
 
-        const response = await fetch("https://www.googleapis.com/gmail/v1/users/me/messages?" + params, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
+        const response = await fetch(`https://www.googleapis.com/gmail/v1/users/me/messages?${params}`, {
+            headers: { Authorization: `Bearer ${accessToken}` },
         });
 
         const data = await response.json();
+        if (!data.messages) return []; // Return empty if no messages
 
-        // Fetch the first 5 emails (you can adjust the number)
         return await Promise.all(
-            data.messages.map(async (message: GoogleEmailResponse) => {
+            data.messages.map(async (message: { id: string }) => {
                 const messageResponse = await fetch(`https://www.googleapis.com/gmail/v1/users/me/messages/${message.id}`, {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                        Accept: "application/json",
-                    },
+                    headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
                 });
 
                 const messageData: gapi.client.gmail.Message = await messageResponse.json();
-                return messageData;
+                const sender = messageData.payload?.headers?.find((header) => header.name === "From")?.value || "Unknown";
+                const senderName = sender.split("<")[0].trim();
+                const senderEmail = sender.match(/<([^>]*)>/)?.[1] || sender;
+
+                return {
+                    id: messageData.id,
+                    sender: { name: senderName, email: senderEmail.toLowerCase() },
+                    recipients: messageData.payload?.headers
+                        ?.filter((header) => header.name === "To")
+                        .map((header) => ({
+                            email: header.value?.split("<")[1]?.replace(">", "").toLowerCase() || header.value,
+                            name: header.value?.split("<")[0]?.trim() || header.value,
+                        })),
+                    subject: messageData.payload?.headers?.find((header) => header.name === "Subject")?.value || "No Subject",
+                    body: messageData.snippet,
+                    hasAttachments: messageData.payload?.mimeType === "multipart/mixed",
+                    sentDate: new Date(parseInt(messageData.internalDate || "0")),
+                } as Email;
             })
         );
     } catch (error) {
-        console.error("Error fetching emails:", error);
+        console.error("Error fetching Google emails:", error);
         return [];
     }
 }

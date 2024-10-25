@@ -1,8 +1,6 @@
 import { ThreadHeader, ThreadList } from '@/app/components/thread-list';
 import { Suspense } from 'react';
-import { fetchEmails, MailFolder, ProviderName } from '@/lib/db/queries';
-import { auth } from '@/auth';
-import PopulateStore from '../../components/populate-store';
+import { SessionProvider } from 'next-auth/react';
 
 export default function ThreadsPage({
     params,
@@ -38,16 +36,10 @@ async function Threads({
     searchParams: { q?: string; id?: string };
 }) {
     const q = searchParams.q || '';
-    const session = await auth();
-    const threads = await fetchEmails(session?.provider as ProviderName || '', session?.accessToken || '', 10, folderName as MailFolder);
 
     return (
-        <>
-            <ThreadList folderName={folderName} threads={threads} searchQuery={q} />
-            <PopulateStore data={{
-                folderId: folderName,
-                threads: threads.map((thread) => thread.id),
-            }} />
-        </>
+        <SessionProvider>
+            <ThreadList folderName={folderName} searchQuery={q} />
+        </SessionProvider>
     );
 }

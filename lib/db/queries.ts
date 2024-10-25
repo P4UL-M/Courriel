@@ -1,6 +1,6 @@
 import { fetchEmailAttachmentsMicrosoft, fetchEmailDetailsMicrosoft, fetchEmailExistMicrosoft, fetchEmailsMicrosoft } from "./queries.microsoft";
 import { Email } from "./types";
-import { decodeBase64, fetchEmailAttachmentsGmail, fetchGoogleEmailDetails, fetchGoogleEmails, getEmailBody, GoogleEmail } from "./queries.google";
+import { decodeBase64, fetchEmailAttachmentsGmail, fetchGoogleEmailDetails, fetchGoogleEmails, getEmailBody } from "./queries.google";
 
 export enum MailFolder {
     Inbox = "inbox",
@@ -35,69 +35,25 @@ const FolderTranslation = {
     },
 };
 
-export const fetchEmails = async (provider: ProviderName, accessToken: string, number: number = 10, folder: MailFolder | undefined = undefined) => {
+export const fetchEmails = async (
+    provider: ProviderName,
+    accessToken: string,
+    folder: MailFolder | undefined = undefined,
+    number: number = 10,
+    nextIndex: string | undefined = undefined
+): Promise<{
+    nextLink?: string;
+    data: Email[];
+}> => {
     if (provider === "microsoft-entra-id") {
         const mailFolder = folder && FolderTranslation[provider][folder];
-        const data = await fetchEmailsMicrosoft(accessToken, number, mailFolder);
-
-        if (!data) {
-            return [];
-        }
-
-        // translate to Email type
-        return data.map((email) => {
-            return {
-                id: email.id,
-                sender: {
-                    name: email.sender?.emailAddress?.name,
-                    email: email.sender?.emailAddress?.address?.toLocaleLowerCase(),
-                },
-                recipients: email.toRecipients?.map((recipient) => ({
-                    name: recipient.emailAddress?.name,
-                    email: recipient.emailAddress?.address?.toLocaleLowerCase(),
-                })),
-                subject: email.subject,
-                body: email.bodyPreview,
-                hasAttachments: email.hasAttachments,
-                sentDate: new Date(email.sentDateTime || 0),
-            } as Email;
-        });
+        return await fetchEmailsMicrosoft(accessToken, number, mailFolder, nextIndex);
     } else if (provider === "google") {
-        // fetch emails from Google API
         const mailFolder = folder && FolderTranslation[provider][folder];
-        const data = await fetchGoogleEmails(accessToken, number, mailFolder);
-
-        if (!data) {
-            return [];
-        }
-
-        // translate to Email type
-        return data.map((email: GoogleEmail) => {
-            const sender = email.payload?.headers?.find((header) => header.name === "From")?.value || "Unknown";
-            // separate name and email
-            const senderName = sender.split("<")[0].trim();
-            const senderEmail = sender.match(/<([^>]*)>/)?.[1] || sender;
-            return {
-                id: email.id,
-                sender: {
-                    name: senderName,
-                    email: senderEmail.toLocaleLowerCase(),
-                },
-                recipients: email.payload?.headers
-                    ?.filter((header) => header.name === "To")
-                    .map((header) => ({
-                        email: header.value?.split("<")[1]?.replace(">", "").toLocaleLowerCase() || header.value,
-                        name: header.value?.split("<")[0]?.trim() || header.value,
-                    })),
-                subject: email.payload?.headers?.find((header) => header.name === "Subject")?.value || "No Subject",
-                body: email.snippet,
-                hasAttachments: email.payload?.mimeType === "multipart/mixed",
-                sentDate: new Date(parseInt(email.internalDate || "0")),
-            } as Email;
-        });
+        return { data: await fetchGoogleEmails(accessToken, number, mailFolder, nextIndex) };
     } else {
         console.error("Unknown provider:", provider);
-        return [];
+        return { data: [] };
     }
 };
 
