@@ -50,11 +50,11 @@ export const fetchEmails = async (provider: ProviderName, accessToken: string, n
                 id: email.id,
                 sender: {
                     name: email.sender?.emailAddress?.name,
-                    email: email.sender?.emailAddress?.address,
+                    email: email.sender?.emailAddress?.address?.toLocaleLowerCase(),
                 },
                 recipients: email.toRecipients?.map((recipient) => ({
                     name: recipient.emailAddress?.name,
-                    email: recipient.emailAddress?.address,
+                    email: recipient.emailAddress?.address?.toLocaleLowerCase(),
                 })),
                 subject: email.subject,
                 body: email.bodyPreview,
@@ -81,12 +81,12 @@ export const fetchEmails = async (provider: ProviderName, accessToken: string, n
                 id: email.id,
                 sender: {
                     name: senderName,
-                    email: senderEmail,
+                    email: senderEmail.toLocaleLowerCase(),
                 },
                 recipients: email.payload?.headers
                     ?.filter((header) => header.name === "To")
                     .map((header) => ({
-                        email: header.value?.split("<")[1]?.replace(">", "") || header.value,
+                        email: header.value?.split("<")[1]?.replace(">", "").toLocaleLowerCase() || header.value,
                         name: header.value?.split("<")[0]?.trim() || header.value,
                     })),
                 subject: email.payload?.headers?.find((header) => header.name === "Subject")?.value || "No Subject",
@@ -115,11 +115,11 @@ export const fetchEmailsDetails = async (provider: ProviderName, accessToken: st
             id: data.id,
             sender: {
                 name: data.sender?.emailAddress?.name,
-                email: data.sender?.emailAddress?.address,
+                email: data.sender?.emailAddress?.address?.toLocaleLowerCase(),
             },
             recipients: data.toRecipients?.map((recipient) => ({
                 name: recipient.emailAddress?.name,
-                email: recipient.emailAddress?.address,
+                email: recipient.emailAddress?.address?.toLocaleLowerCase(),
             })),
             subject: data.subject,
             body: content,
@@ -145,12 +145,12 @@ export const fetchEmailsDetails = async (provider: ProviderName, accessToken: st
             id: data.id,
             sender: {
                 name: senderName,
-                email: senderEmail,
+                email: senderEmail.toLocaleLowerCase(),
             },
             recipients: data.payload?.headers
                 ?.filter((header) => header.name === "To")
                 .map((header) => ({
-                    email: header.value?.split("<")[1]?.replace(">", "") || header.value,
+                    email: header.value?.split("<")[1]?.replace(">", "").toLocaleLowerCase() || header.value,
                     name: header.value?.split("<")[0]?.trim() || header.value,
                 })),
             subject: data.payload?.headers?.find((header) => header.name === "Subject")?.value || "No Subject",
