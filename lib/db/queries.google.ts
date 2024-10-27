@@ -26,6 +26,11 @@ export async function fetchGoogleEmails(
             headers: { Authorization: `Bearer ${accessToken}` },
         });
 
+        if (!response.ok) {
+            if (response.status === 401) signOut();
+            return { data: [] };
+        }
+
         const data = await response.json();
         if (!data.messages) return { data: [] }; // Return empty array if no messages
 
@@ -60,7 +65,7 @@ export async function fetchGoogleEmails(
             ),
         };
     } catch (error) {
-        console.error("Error fetching Google emails:", error);
+        console.error("Error fetching emails:", error);
         return { data: [] };
     }
 }

@@ -52,7 +52,6 @@ export const fetchEmails = async (
         const mailFolder = folder && FolderTranslation[provider][folder];
         return await fetchGoogleEmails(accessToken, number, mailFolder, nextIndex);
     } else {
-        console.error("Unknown provider:", provider);
         return { data: [] };
     }
 };
