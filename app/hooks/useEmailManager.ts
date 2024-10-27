@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
-import { Email } from "@/lib/db/types";
-import { fetchEmails, MailFolder, ProviderName } from "@/lib/db/queries";
+import { fetchEmails } from "@/lib/db/queries";
+import { Email, ProviderName, MailFolder } from "@/lib/db/types";
 
 // Main hook to manage the email list
 export const useEmailManager = (provider: ProviderName, accessToken: string, folder: string) => {

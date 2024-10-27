@@ -1,11 +1,11 @@
 'use client';
 
 import { SessionProvider, useSession } from "next-auth/react";
-import { fetchEmailsDetails, ProviderName } from "@/lib/db/queries";
+import { fetchEmailsDetails } from "@/lib/db/queries";
 import ShadowWrapper from "@/components/ui/shadow-wrapper";
 import ThreadAttachments from "./thread-attachments";
 import { useEffect, useState } from "react";
-import { Email } from "@/lib/db/types";
+import { Email, ProviderName } from "@/lib/db/types";
 import { ThreadActions } from "./thread-actions";
 import { FileAttachment } from "@microsoft/microsoft-graph-types";
 
@@ -118,14 +118,14 @@ const ThreadContent = ({ threadId }: ThreadContentProps) => {
                     {thread.subject}
                 </h1>
                 <div className="flex items-center space-x-1 flex-shrink-0 mt-2 sm:mt-0">
-                    <button className="text-gray-700 text-sm font-medium mr-2">
+                    <button className="text-gray-700 text-sm font-medium mr-2 dark:text-gray-400">
                         Share
                     </button>
                     <ThreadActions threadId={thread.id} />
                 </div>
             </div>
             <div className="space-y-6">
-                <div key={thread.id} className="bg-gray-50 py-4 px-6 rounded-lg">
+                <div key={thread.id} className="bg-gray-50 py-4 px-6 rounded-lg dark:bg-gray-800">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2">
                         <div className="font-semibold">
                             {thread.sender.name === session?.user?.email ?
@@ -135,11 +135,11 @@ const ThreadContent = ({ threadId }: ThreadContentProps) => {
                                 ? 'Me'
                                 : thread.recipients[0].name || thread.recipients[0].email)}
                         </div>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
                             {new Date(thread.sentDate!).toLocaleString()}
                         </div>
                     </div>
-                    <div className="py-5">
+                    <div className="py-5 bg-gray-50">
                         {/* {thread.body} */}
                         <ShadowWrapper content={body!} />
                     </div>

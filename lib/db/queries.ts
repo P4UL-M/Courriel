@@ -1,20 +1,6 @@
 import { fetchEmailAttachmentsMicrosoft, fetchEmailDetailsMicrosoft, fetchEmailExistMicrosoft, fetchEmailsMicrosoft } from "./queries.microsoft";
-import { Email } from "./types";
+import { Email, ProviderName, MailFolder } from "./types";
 import { decodeBase64, fetchEmailAttachmentsGmail, fetchGoogleEmailDetails, fetchGoogleEmails, getEmailBody } from "./queries.google";
-
-export enum MailFolder {
-    Inbox = "inbox",
-    Drafts = "drafts",
-    SentItems = "sent",
-    DeletedItems = "trash",
-    Starred = "starred",
-    Archive = "archive",
-}
-
-export enum ProviderName {
-    Microsoft = "microsoft-entra-id",
-    Google = "google",
-}
 
 const FolderTranslation = {
     "microsoft-entra-id": {

@@ -9,8 +9,8 @@ import { ThreadActions } from '@/app/components/thread-actions';
 import UserIconWrapper, { UserIconSkeleton } from './user-icon';
 import { useEmailManager } from '../hooks/useEmailManager';
 import { useSession } from 'next-auth/react';
-import { ProviderName } from '@/lib/db/queries';
 import { useEmailStore } from '../store/emailStore';
+import { ProviderName } from "@/lib/db/types";
 
 interface ThreadListProps {
   folderName: string;
@@ -154,7 +154,7 @@ export function ThreadList({ folderName }: ThreadListProps) {
             <Link
               key={thread.id}
               href={`/f/${folderName.toLowerCase()}/${thread.id}`}
-              className="block hover:bg-gray-50 cursor-pointer border-b border-gray-100"
+              className="block hover:bg-gray-50 cursor-pointer border-b border-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
               <div
                 className="flex items-center"
@@ -171,7 +171,7 @@ export function ThreadList({ folderName }: ThreadListProps) {
                     <span className="font-medium truncate min-w-[175px] max-w-[400px] mr-2">
                       {thread.subject}
                     </span>
-                    <span className="text-gray-600 truncate">
+                    <span className="text-gray-600 truncate dark:text-gray-400">
                       {thread.body}
                     </span>
                   </div>
@@ -180,7 +180,7 @@ export function ThreadList({ folderName }: ThreadListProps) {
                   {!isMobile && hoveredThread === thread.id ? (
                     <ThreadActions threadId={thread.id} />
                   ) : (
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
                       {new Date(thread.sentDate!).toLocaleDateString()}
                     </span>
                   )}

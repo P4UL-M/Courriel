@@ -35,7 +35,7 @@ const UserIcon = () => {
             <Dialog.Root open={open} onOpenChange={setOpen}>
                 <Dialog.Portal>
                     <Dialog.Overlay className="fixed inset-0 bg-black/50" />
-                    <Dialog.Content className="fixed top-1/2 left-1/2 w-full max-w-md p-6 bg-white rounded-lg shadow-lg transform -translate-x-1/2 -translate-y-1/2">
+                    <Dialog.Content className="fixed top-1/2 left-1/2 w-full max-w-md p-6 bg-white rounded-lg shadow-lg transform -translate-x-1/2 -translate-y-1/2 dark:bg-gray-800">
                         <Dialog.Close className="absolute top-4 right-4">
                             <Cross2Icon className="w-6 h-6" />
                         </Dialog.Close>

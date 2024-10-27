@@ -27,9 +27,9 @@ export function ThreadActions({ threadId }: ThreadActionsProps) {
                             <button
                                 type="submit"
                                 disabled={isProduction}
-                                className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:hover:bg-gray-900"
                             >
-                                <Check size={14} className="text-gray-600" />
+                                <Check size={14} className="text-gray-600 dark:text-gray-200" />
                             </button>
                         </form>
                     </TooltipTrigger>
@@ -43,9 +43,9 @@ export function ThreadActions({ threadId }: ThreadActionsProps) {
                     <TooltipTrigger asChild>
                         <button
                             disabled
-                            className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors cursor-not-allowed"
+                            className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors cursor-not-allowed dark:hover:bg-gray-900"
                         >
-                            <Clock size={14} className="text-gray-400" />
+                            <Clock size={14} className="text-gray-400 dark:text-gray-200" />
                         </button>
                     </TooltipTrigger>
                     <TooltipContent>
@@ -59,9 +59,9 @@ export function ThreadActions({ threadId }: ThreadActionsProps) {
                             <button
                                 type="submit"
                                 disabled={isProduction}
-                                className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:hover:bg-gray-900"
                             >
-                                <Archive size={14} className="text-gray-600" />
+                                <Archive size={14} className="text-gray-600 dark:text-gray-200" />
                             </button>
                         </form>
                     </TooltipTrigger>

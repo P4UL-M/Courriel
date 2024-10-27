@@ -16,12 +16,12 @@ export function LeftSidebar() {
     const prevId = useEmailStore((state) => state.getPreviousThread(name as string, idDecoded as string));
 
     return (
-        <div className="bg-gray-100 flex flex-col items-center py-6 space-y-4 pl-2 sm:pl-4 pr-2 sm:pr-24">
+        <div className="bg-gray-100 flex flex-col items-center py-6 space-y-4 pl-2 sm:pl-4 pr-2 sm:pr-24 dark:bg-gray-800">
             <Link href={`/f/${name}`} passHref>
                 <Button
                     size="lg"
                     variant="outline"
-                    className="p-2 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
+                    className="p-2 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors dark:hover:bg-gray-700"
                 >
                     <ArrowLeft className="size-4 sm:size-5" />
                 </Button>
@@ -29,7 +29,7 @@ export function LeftSidebar() {
             <Button
                 size="lg"
                 variant="outline"
-                className="p-2 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors dark:hover:bg-gray-700"
                 onClick={() => router.push(`/f/${name}/${prevId}`)}
                 disabled={!prevId}
             >
@@ -38,7 +38,7 @@ export function LeftSidebar() {
             <Button
                 size="lg"
                 variant="outline"
-                className="p-2 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors dark:hover:bg-gray-700"
                 onClick={() => router.push(`/f/${name}/${nextId}`)}
                 disabled={!nextId}
             >
