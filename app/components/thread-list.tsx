@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect, Suspense, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { PenSquare, RefreshCw, Search } from 'lucide-react';
 import { NavMenu } from './menu';
 import { formatEmailString } from '@/lib/utils';
 import { ThreadActions } from '@/app/components/thread-actions';
-import UserIconWrapper, { UserIconSkeleton } from './user-icon';
+import UserIconWrapper from './user-icon';
 import { useEmailManager } from '../hooks/useEmailManager';
 import { useSession } from 'next-auth/react';
 import { useEmailStore } from '../store/emailStore';
@@ -74,9 +74,7 @@ export function ThreadHeader({
         <div
           className='w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center'
         >
-          <Suspense fallback={<UserIconSkeleton />}>
-            <UserIconWrapper />
-          </Suspense>
+          <UserIconWrapper />
         </div>
       </div>
     </div>

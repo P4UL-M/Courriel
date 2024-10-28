@@ -4,7 +4,7 @@ import Image from "next/image";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Cross2Icon } from "@radix-ui/react-icons";
 
-const UserIcon = () => {
+export const UserIcon = () => {
     const { data: session } = useSession();
     const [open, setOpen] = React.useState(false);
 
@@ -26,7 +26,7 @@ const UserIcon = () => {
                         height={32}
                     />
                 ) : (
-                    <span className="rounded-full w-8 h-8 bg-gray-300 flex items-center justify-center">
+                    <span className="rounded-full w-8 h-8 bg-gray-300 flex items-center justify-center dark:bg-gray-700">
                         {user?.name?.charAt(0) || user?.email?.charAt(0)}
                     </span>
                 )}
@@ -64,12 +64,6 @@ const UserIcon = () => {
         </div>
     );
 };
-
-export const UserIconSkeleton = () => {
-    return (
-        <span className="rounded-full w-8 h-8 bg-gray-300 animate-pulse" />
-    );
-}
 
 const UserIconWrapper = () => {
     return (
