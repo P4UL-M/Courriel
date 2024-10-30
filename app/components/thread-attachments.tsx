@@ -2,10 +2,11 @@
 
 import { SessionProvider, useSession } from 'next-auth/react';
 import { useState, useEffect } from 'react';
-import { fetchEmailAttachments, ProviderName } from '@/lib/db/queries';
+import { fetchEmailAttachments } from '@/lib/db/queries';
 import { File } from 'lucide-react'; // Import the file icon from lucide-react
 import { FileAttachment } from '@microsoft/microsoft-graph-types';
 import Image from 'next/image';
+import { ProviderName } from '@/lib/db/types';
 
 
 type EmailAttachmentsProps = {
