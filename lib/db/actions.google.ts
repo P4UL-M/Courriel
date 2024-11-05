@@ -38,7 +38,6 @@ export const moveEmailToArchiveGoogle = async (accessToken: string, emailId: str
             if (response.status === 401) signOut();
             throw new Error("Failed to move email to archive");
         }
-        console.log("response", response);
         return await response.json();
     } catch (error) {
         console.error("Error moving email to archive:", error);

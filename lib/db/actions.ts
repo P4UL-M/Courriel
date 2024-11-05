@@ -8,7 +8,6 @@ import { moveEmailToArchiveGoogle } from "./actions.google";
 import { ProviderName } from "./types";
 
 export async function sendEmailAction(_: any, formData: FormData) {
-    console.log("sendEmailAction");
     return { success: true, error: null };
 }
 
@@ -25,7 +24,6 @@ export async function moveThreadToTrash(_: any, formData: FormData) {
         if (provider === "microsoft-entra-id") {
             await moveEmailToTrashMicrosoft(accessToken, emailId);
         } else if (provider === "google") {
-            console.log("moveEmailToTrashGoogle");
             await moveEmailToTrashGoogle(accessToken, emailId);
         } else {
             throw new Error("Unknown provider");
