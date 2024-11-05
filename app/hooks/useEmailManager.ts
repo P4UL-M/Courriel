@@ -41,7 +41,8 @@ export const useEmailManager = (provider: ProviderName, accessToken: string, fol
 
     // Check for new emails and add them to the top
     const checkNewEmails = useCallback(async () => {
-        await fetchInitialEmails();
+        setLoading(true);
+        fetchInitialEmails().finally(() => setLoading(false));
     }, [fetchInitialEmails]);
 
     useEffect(() => {

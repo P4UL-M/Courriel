@@ -19,7 +19,7 @@ const providers: Provider[] = [
         clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
         authorization: {
             params: {
-                scope: "openid profile email https://www.googleapis.com/auth/gmail.readonly",
+                scope: "openid profile email https://www.googleapis.com/auth/gmail.modify",
             },
         },
     }),

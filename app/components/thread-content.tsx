@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { Email, ProviderName } from "@/lib/db/types";
 import { ThreadActions } from "./thread-actions";
 import { FileAttachment } from "@microsoft/microsoft-graph-types";
+import { redirect } from "next/navigation";
 
 
 type ThreadContentProps = {
@@ -86,6 +87,10 @@ const ThreadContent = ({ threadId }: ThreadContentProps) => {
         return <ThreadContentSkeleton />;
     }
 
+    if (!session) {
+        return null;
+    }
+
     return (
         <div className="max-w-6xl mx-auto">
             <div className="flex flex-col sm:flex-row items-start justify-between mb-6 mx-6">
@@ -96,7 +101,7 @@ const ThreadContent = ({ threadId }: ThreadContentProps) => {
                     <button className="text-gray-700 text-sm font-medium mr-2 dark:text-gray-400">
                         Share
                     </button>
-                    <ThreadActions threadId={thread.id} />
+                    <ThreadActions threadId={thread.id} provider={session.provider!} accessToken={session.accessToken!} callback={(action) => redirect('/f/' + action)} />
                 </div>
             </div>
             <div className="space-y-6">

@@ -174,9 +174,9 @@ export function ThreadList({ folderName }: ThreadListProps) {
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center justify-end flex-shrink-0 w-40 p-4">
+                <div className="flex items-center justify-end flex-shrink-0 w-40 p-4" onClick={(e) => e.stopPropagation()}>
                   {!isMobile && hoveredThread === thread.id ? (
-                    <ThreadActions threadId={thread.id} />
+                    <ThreadActions threadId={thread.id} provider={session.provider!} accessToken={session.accessToken!} callback={() => checkNewEmails()} />
                   ) : (
                     <span className="text-sm text-gray-500 dark:text-gray-400">
                       {new Date(thread.sentDate!).toLocaleDateString()}
