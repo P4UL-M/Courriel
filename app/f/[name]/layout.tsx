@@ -2,9 +2,10 @@ import { auth } from "@/auth";
 
 export async function generateMetadata({ params }: { params: { name: string; id: string } }) {
     const session = await auth();
+    const { name } = await params;
 
     return {
-        title: params.name[0].toLocaleUpperCase() + params.name.slice(1) + ' - ' + session?.user?.name + ' - Courriel',
+        title: name[0].toLocaleUpperCase() + name.slice(1) + ' - ' + session?.user?.name + ' - Courriel',
     };
 }
 
