@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Inter } from 'next/font/google';
 import "./globals.css";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -29,7 +30,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`bg-white text-gray-800 ${inter.className}`}>
       <body className={`${geistSans.variable} ${geistMono.variable} flex h-screen antialiased`}>
-        <main className="flex-grow overflow-hidden">{children}</main>
+        <main className="flex-grow overflow-hidden">
+          <Toaster position="top-right" />
+          {children}
+        </main>
       </body>
     </html>
   );

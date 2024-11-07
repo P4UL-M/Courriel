@@ -9,7 +9,7 @@ const providers: Provider[] = [
         clientSecret: process.env.MICROSOFT_ENTRA_ID_CLIENT_SECRET!,
         authorization: {
             params: {
-                scope: "openid profile email User.Read Mail.Read",
+                scope: "openid profile email User.Read Mail.ReadWrite Mail.Send",
             },
         },
         profilePhotoSize: 48,

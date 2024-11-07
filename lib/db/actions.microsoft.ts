@@ -49,3 +49,40 @@ export const moveEmailToArchiveMicrosoft = async (accessToken: string, emailId: 
         return null;
     }
 };
+
+export const sendEmailMicrosoft = async (accessToken: string, subject: string, body: string, recipientEmail: string) => {
+    try {
+        const response = await fetch(`https://graph.microsoft.com/v1.0/me/sendMail`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                message: {
+                    subject: subject,
+                    body: {
+                        contentType: "Text",
+                        content: body,
+                    },
+                    toRecipients: [
+                        {
+                            emailAddress: {
+                                address: recipientEmail,
+                            },
+                        },
+                    ],
+                },
+            }),
+        });
+
+        if (!response.ok) {
+            if (response.status === 401) signOut();
+            throw new Error("Failed to send email");
+        }
+        return {};
+    } catch (error) {
+        console.error("Error sending email:", error);
+        return null;
+    }
+};
