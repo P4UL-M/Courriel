@@ -17,12 +17,28 @@ export const fetchEmailsMicrosoft = async (
     accessToken: string,
     number: number = 10,
     mailFolder: string | undefined = undefined,
-    nextLink: string | undefined = undefined
+    nextLink: string | undefined = undefined,
+    filters?: {
+        subject?: string;
+        sender?: string;
+        recipient?: string;
+        startDate?: string;
+        endDate?: string;
+        hasAttachment?: boolean;
+    }
 ): Promise<{ nextLink?: string; data: Email[] }> => {
     try {
         const params = new URLSearchParams({
             $top: number.toString(),
         });
+
+        // Apply filters as query parameters
+        if (filters?.subject) params.set("$filter", `contains(subject,'${filters.subject}')`);
+        if (filters?.sender) params.append("$filter", `from/emailAddress/address eq '${filters.sender}'`);
+        if (filters?.recipient) params.append("$filter", `toRecipients/any(r:r/emailAddress/address eq '${filters.recipient}')`);
+        if (filters?.startDate) params.append("$filter", `sentDateTime ge ${filters.startDate}`);
+        if (filters?.endDate) params.append("$filter", `sentDateTime le ${filters.endDate}`);
+        if (filters?.hasAttachment !== undefined) params.append("$filter", `hasAttachments eq ${filters.hasAttachment}`);
 
         const endpoint = new URL(nextLink || `https://graph.microsoft.com/v1.0/me/${mailFolder ? `mailFolders/${mailFolder}/` : ""}messages`);
 

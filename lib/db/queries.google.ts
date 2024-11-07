@@ -9,7 +9,15 @@ export async function fetchGoogleEmails(
     accessToken: string,
     number: number = 10,
     folder: string | undefined = undefined,
-    nextIndex: string | undefined = undefined
+    nextIndex: string | undefined = undefined,
+    filters?: {
+        subject?: string;
+        sender?: string;
+        recipient?: string;
+        startDate?: string;
+        endDate?: string;
+        hasAttachment?: boolean;
+    }
 ): Promise<{ nextLink?: string; data: Email[] }> {
     try {
         const params = new URLSearchParams({
@@ -17,10 +25,19 @@ export async function fetchGoogleEmails(
             ...(nextIndex && { pageToken: nextIndex }),
         });
 
+        let query = "";
         if (folder) {
-            if (folder.includes(":")) params.set("q", folder);
-            else params.set("labelIds", folder);
+            query += folder.includes(":") ? `${folder} ` : `label:${folder} `;
         }
+        if (filters) {
+            if (filters.subject) query += `subject:${filters.subject} `;
+            if (filters.sender) query += `from:${filters.sender} `;
+            if (filters.recipient) query += `to:${filters.recipient} `;
+            if (filters.startDate) query += `after:${filters.startDate} `;
+            if (filters.endDate) query += `before:${filters.endDate} `;
+            if (filters.hasAttachment) query += `has:attachment `;
+        }
+        if (query) params.set("q", query.trim());
 
         const response = await fetch(`https://www.googleapis.com/gmail/v1/users/me/messages?${params}`, {
             headers: { Authorization: `Bearer ${accessToken}` },

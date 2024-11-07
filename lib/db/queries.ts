@@ -26,17 +26,25 @@ export const fetchEmails = async (
     accessToken: string,
     folder: MailFolder | undefined = undefined,
     number: number = 10,
-    nextIndex: string | undefined = undefined
+    nextIndex: string | undefined = undefined,
+    filters?: {
+        subject?: string;
+        sender?: string;
+        recipient?: string;
+        startDate?: string;
+        endDate?: string;
+        hasAttachment?: boolean;
+    }
 ): Promise<{
     nextLink?: string;
     data: Email[];
 }> => {
     if (provider === "microsoft-entra-id") {
         const mailFolder = folder && FolderTranslation[provider][folder];
-        return await fetchEmailsMicrosoft(accessToken, number, mailFolder, nextIndex);
+        return await fetchEmailsMicrosoft(accessToken, number, mailFolder, nextIndex, filters);
     } else if (provider === "google") {
         const mailFolder = folder && FolderTranslation[provider][folder];
-        return await fetchGoogleEmails(accessToken, number, mailFolder, nextIndex);
+        return await fetchGoogleEmails(accessToken, number, mailFolder, nextIndex, filters);
     } else {
         return { data: [] };
     }
