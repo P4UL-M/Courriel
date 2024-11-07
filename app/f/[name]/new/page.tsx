@@ -13,9 +13,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { useFormState } from 'react-dom';
 import { SessionProvider, useSession } from 'next-auth/react';
-import { useEffect } from 'react';
+import { useActionState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 
 function EmailBody({ defaultValue = '' }: { defaultValue?: string }) {
@@ -46,7 +45,7 @@ function EmailBody({ defaultValue = '' }: { defaultValue?: string }) {
 function ComposePage() {
   const { data: session } = useSession();
   const { name } = useParams();
-  const [state, formAction] = useFormState(sendEmailAction, {
+  const [state, formAction] = useActionState(sendEmailAction, {
     error: '',
     success: false,
   });

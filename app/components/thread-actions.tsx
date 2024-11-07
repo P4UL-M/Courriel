@@ -1,7 +1,7 @@
 'use client';
 
 import { Check, Clock, Archive } from 'lucide-react';
-import { useEffect } from 'react';
+import { useActionState, useEffect } from 'react';
 import { moveThreadToDone, moveThreadToTrash } from '@/lib/db/actions';
 import {
     Tooltip,
@@ -9,7 +9,6 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { useFormState } from 'react-dom';
 
 interface ThreadActionsProps {
     threadId: string;
@@ -24,11 +23,11 @@ export function ThreadActions({ threadId, provider, accessToken, callback }: Thr
         success: false,
     };
 
-    const [doneState, doneAction, donePending] = useFormState(
+    const [doneState, doneAction, donePending] = useActionState(
         moveThreadToDone,
         initialState
     );
-    const [trashState, trashAction, trashPending] = useFormState(
+    const [trashState, trashAction, trashPending] = useActionState(
         moveThreadToTrash,
         initialState
     );
