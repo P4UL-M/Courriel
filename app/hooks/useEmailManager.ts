@@ -7,6 +7,7 @@ export const useEmailManager = (provider: ProviderName, accessToken: string, fol
     const [emails, setEmails] = useState<Email[]>([]); // State to store all emails
     const [nextIndex, setNextIndex] = useState<string | undefined>(undefined); // Track the current index for pagination
     const [loading, setLoading] = useState(false); // Loading state for fetching emails
+    const [topLoading, setTopLoading] = useState(false); // Loading state for fetching new emails
 
     const fetchInitialEmails = useCallback(async () => {
         try {
@@ -41,8 +42,8 @@ export const useEmailManager = (provider: ProviderName, accessToken: string, fol
 
     // Check for new emails and add them to the top
     const checkNewEmails = useCallback(async () => {
-        setLoading(true);
-        fetchInitialEmails().finally(() => setLoading(false));
+        setTopLoading(true);
+        fetchInitialEmails().finally(() => setTopLoading(false));
     }, [fetchInitialEmails]);
 
     useEffect(() => {
@@ -54,5 +55,6 @@ export const useEmailManager = (provider: ProviderName, accessToken: string, fol
         fetchNextEmails,
         checkNewEmails,
         loading,
+        topLoading,
     };
 };

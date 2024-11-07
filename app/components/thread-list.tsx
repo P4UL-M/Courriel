@@ -81,19 +81,38 @@ export function ThreadHeader({
   );
 }
 
+function ThreadSkeleton() {
+  return (
+    <div className="flex items-center border-b border-gray-100 animate-pulse">
+      <div className="flex-grow flex items-center overflow-hidden p-4">
+        <div className="w-[200px] flex-shrink-0 mr-4 h-6 bg-gray-200 rounded dark:bg-gray-700"></div>
+        <div className="flex-grow flex items-center overflow-hidden">
+          <div className="h-6 bg-gray-200 rounded min-w-[175px] max-w-[400px] mr-2 dark:bg-gray-700"></div>
+          <div className="flex-grow h-6 bg-gray-200 rounded dark:bg-gray-700"></div>
+        </div>
+      </div>
+      <div className="flex items-center justify-end flex-shrink-0 w-40 p-4">
+        <div className="h-6 bg-gray-200 rounded w-16 dark:bg-gray-700"></div>
+      </div>
+    </div>
+  );
+}
+
 export function ThreadList({ folderName }: ThreadListProps) {
   const [hoveredThread, setHoveredThread] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null); // Sentinel for intersection
 
   const { data: session } = useSession();
-  const { emails: threads, fetchNextEmails, loading, checkNewEmails } = useEmailManager(session?.provider as ProviderName, session?.accessToken || '', folderName);
+  const { emails: threads, fetchNextEmails, loading, checkNewEmails, topLoading } = useEmailManager(session?.provider as ProviderName, session?.accessToken || '', folderName);
   const setThreadsByFolder = useEmailStore(state => state.setThreadsByFolder);
 
   // Intersection Observer callback to fetch next emails
   const onIntersection = useCallback(
     (entries: IntersectionObserverEntry[]) => {
+      console.log('Intersection Observer');
       if (entries[0].isIntersecting) {
+        console.log('Fetching next emails');
         fetchNextEmails(); // Call fetch function when sentinel is visible
       }
     },
@@ -101,7 +120,7 @@ export function ThreadList({ folderName }: ThreadListProps) {
   );
 
   useEffect(() => {
-    const observer = new IntersectionObserver(onIntersection, { threshold: 1.0 });
+    const observer = new IntersectionObserver(onIntersection, { threshold: 0.1 });
     const sentinel = sentinelRef.current;
     if (sentinel) observer.observe(sentinel);
 
@@ -147,6 +166,11 @@ export function ThreadList({ folderName }: ThreadListProps) {
     <div className="flex-grow border-r border-gray-200 overflow-hidden">
       <ThreadHeader folderName={folderName} count={threads.length} refreshCallback={checkNewEmails} />
       <div className="overflow-auto h-[calc(100vh-64px)]">
+        {/* Skeleton Loader */}
+        {topLoading && Array.from({ length: 1 }).map((_, index) => (
+          <ThreadSkeleton key={index} />
+        ))}
+
         {threads.map((thread) => {
           return (
             <Link
@@ -189,22 +213,11 @@ export function ThreadList({ folderName }: ThreadListProps) {
         })}
 
         {/* Sentinel div at the bottom */}
-        <div ref={sentinelRef} className="h-1" />
+        <div ref={sentinelRef} className="h-5" />
 
         {/* Skeleton Loader */}
         {loading && Array.from({ length: 3 }).map((_, index) => (
-          <div key={index} className="flex items-center border-b border-gray-100 animate-pulse">
-            <div className="flex-grow flex items-center overflow-hidden p-4">
-              <div className="w-[200px] flex-shrink-0 mr-4 h-6 bg-gray-200 rounded"></div>
-              <div className="flex-grow flex items-center overflow-hidden">
-                <div className="h-6 bg-gray-200 rounded min-w-[175px] max-w-[400px] mr-2"></div>
-                <div className="flex-grow h-6 bg-gray-200 rounded"></div>
-              </div>
-            </div>
-            <div className="flex items-center justify-end flex-shrink-0 w-40 p-4">
-              <div className="h-6 bg-gray-200 rounded w-16"></div>
-            </div>
-          </div>
+          <ThreadSkeleton key={index} />
         ))}
       </div>
     </div >
