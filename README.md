@@ -76,7 +76,6 @@ This application is designed to give users a clear and easy way to access their 
     MICROSOFT_ENTRA_ID_CLIENT_SECRET=your_microsoft_entra_client_secret
     GOOGLE_CLIENT_ID=your_google_client_id
     GOOGLE_CLIENT_SECRET=your_google_client_secret
-    NEXT_PUBLIC_VERCEL_ENV=your_vercel_environment
     ```
 4. Start the Application:
     ```bash
