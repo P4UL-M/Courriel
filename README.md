@@ -70,7 +70,7 @@ This application is designed to give users a clear and easy way to access their 
     ```bash
     npm install
     ```
-3. Create a `.env` file in the root directory with the following variables:
+3. Create a `.env.local` file in the root directory with the following variables:
     ```bash
     MICROSOFT_ENTRA_ID_CLIENT_ID=your_microsoft_entra_client_id
     MICROSOFT_ENTRA_ID_CLIENT_SECRET=your_microsoft_entra_client_secret
