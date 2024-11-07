@@ -82,6 +82,9 @@ This application is designed to give users a clear and easy way to access their 
     npm run build
     ```
 
+### Hosting of Courriel
+Courriel is hosted on our own server, and you can access it via [this link](https://courriel.deway.fr/)
+
 ## Contribution
 Contributions are welcome! Please follow these steps to contribute:
 1. Fork the repository.
