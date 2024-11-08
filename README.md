@@ -6,43 +6,8 @@ Courriel is a web platform designed for managing and viewing incoming emails fro
 ## Concept
 This application is designed to give users a clear and easy way to access their emails. Users can search, sort, and view their messages smoothly. The structure is built to be flexible, so it’s easy to customize and add support for different email providers in the future. The project is organized to be scalable and simple to maintain.
 
-## Project Structure
-```
-.
-├── app
-│   ├── api
-│   │   └── auth
-│   │       └── [...nextauth]
-│   │           └── route.ts
-│   ├── components
-│   ├── f
-│   │   ├── [name]
-│   │   │   └── new
-│   │   └── [id]
-│   ├── fonts
-│   ├── hooks
-│   ├── login
-│   ├── search
-│   └── store
-├── components
-│   └── ui
-├── lib
-│   ├── db
-│   └── utils.tsx
-├── types
-├── .eslintrc.json
-├── .gitignore
-├── auth.ts
-├── components.json
-├── middleware.ts
-├── next.config.mjs
-├── package-lock.json
-├── package.json
-├── postcss.config.mjs
-├── README.md
-├── tailwind.config.ts
-└── tsconfig.json
-```
+## Live Demo
+Courriel is hosted and deployed on vercel, you can access it via [this link](https://courriel.deway.fr/)
 
 ## Usage
 
@@ -56,9 +21,24 @@ This application is designed to give users a clear and easy way to access their 
 - **UI components**:
      The interface, built with Tailwind CSS and Next.js components, provides a responsive design that adapts to different devices. Components like thread-content, thread-list, user-icon, and left-sidebar enhance navigation and usability.
 
+### Bonuses Features
+- **Enhanced search**:
+    The search feature allows users to find emails by sender, subject, or content. The system uses a custom search query to filter emails based on the user's input. You just have to follow basic gmail or outlook search syntax (e.g. `from:` or `subject:`).
+
+- **Attachments**:
+    The application supports attachments, allowing users to download and view files attached to emails. The system uses a custom query to retrieve attachments and display them in the email viewer.
+
+- **CID Images**:
+    The system supports CID images, displaying embedded images in the email content. The system uses a custom query to retrieve and display images in the email viewer.
+
+- **HTML Content**:
+    The system supports HTML content, displaying emails with rich text and images. The system uses a custom query to retrieve and display HTML content in the email viewer.
+
 ### Prerequisites
 - [Node.js](https://nodejs.org/en/download/)
 - [npm](https://www.npmjs.com/get-npm)
+- [Entra Microsoft ID](https://portal.azure.com/)
+- [Google API](https://console.developers.google.com/)
 
 ### Installation and Setup with Docker
 1. Clone the repository:
@@ -76,14 +56,13 @@ This application is designed to give users a clear and easy way to access their 
     MICROSOFT_ENTRA_ID_CLIENT_SECRET=your_microsoft_entra_client_secret
     GOOGLE_CLIENT_ID=your_google_client_id
     GOOGLE_CLIENT_SECRET=your_google_client_secret
+    NEXTAUTH_URL=http://localhost:3000
+    NEXTAUTH_SECRET=your_nextauth_secret
     ```
 4. Start the Application:
     ```bash
-    npm run build
+    npm run dev
     ```
-
-### Hosting of Courriel
-Courriel is hosted on our own server, and you can access it via [this link](https://courriel.deway.fr/)
 
 ## Contribution
 Contributions are welcome! Please follow these steps to contribute:
