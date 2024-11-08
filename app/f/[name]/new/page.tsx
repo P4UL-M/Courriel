@@ -32,9 +32,10 @@ function EmailBody({ defaultValue = '' }: { defaultValue?: string }) {
     <div>
       <textarea
         name="body"
-        placeholder="Tip: Hit Shift ⏎ to send"
+        placeholder="Tip: Hit Ctrl ⏎ to send"
         className="w-full h-[calc(100vh-300px)] resize-none border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-gray-100"
         required
+        autoComplete='off'
         onKeyDown={handleKeyDown}
         defaultValue={defaultValue}
       />
@@ -59,8 +60,6 @@ function ComposePage() {
     }
   }, [state.success]);
 
-  const isProduction = process.env.NEXT_PUBLIC_VERCEL_ENV === 'production';
-
   return (
     <div className="flex-grow h-full flex">
       <LeftSidebar />
@@ -84,6 +83,7 @@ function ComposePage() {
             </span>
             <input
               type="email"
+              autoComplete='off'
               name="recipientEmail"
               className="w-full pl-12 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-gray-100"
             />
@@ -94,6 +94,7 @@ function ComposePage() {
             </span>
             <input
               type="text"
+              autoComplete='off'
               name="subject"
               className="w-full pl-20 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-gray-100"
             />
@@ -106,24 +107,18 @@ function ComposePage() {
                   <TooltipTrigger asChild>
                     <button
                       type="submit"
-                      disabled={isProduction}
-                      className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                     >
                       Send
                     </button>
                   </TooltipTrigger>
-                  {isProduction && (
-                    <TooltipContent>
-                      <p>Sending emails is disabled in production</p>
-                    </TooltipContent>
-                  )}
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <button
                       type="button"
-                      disabled={isProduction}
-                      className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled
+                      className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                     >
                       Send later
                     </button>
@@ -136,8 +131,8 @@ function ComposePage() {
                   <TooltipTrigger asChild>
                     <button
                       type="button"
-                      disabled={isProduction}
-                      className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled
+                      className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
                     >
                       Remind me
                     </button>

@@ -1,4 +1,4 @@
-import { Menu, Star, FileText, Send, Check, Trash } from 'lucide-react';
+import { Menu, Send, Check, Trash } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import Link from 'next/link';
 
@@ -22,7 +22,7 @@ export function NavMenu() {
             <Menu size={20} />
             <span>Inbox</span>
           </Link>
-          <Link
+          {/* <Link
             href="/f/starred"
             className="flex items-center space-x-2 text-gray-700 hover:bg-gray-10 dark:text-white dark:hover:bg-gray-700 p-2 rounded"
           >
@@ -35,7 +35,7 @@ export function NavMenu() {
           >
             <FileText size={20} />
             <span>Drafts</span>
-          </Link>
+          </Link> */}
           <Link
             href="/f/sent"
             className="flex items-center space-x-2 text-gray-700 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700 p-2 rounded"

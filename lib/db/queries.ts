@@ -1,22 +1,23 @@
 import { fetchEmailAttachmentsMicrosoft, fetchEmailDetailsMicrosoft, fetchEmailExistMicrosoft, fetchEmailsMicrosoft, searchEmailsMicrosoft } from "./queries.microsoft";
 import { Email, ProviderName, MailFolder, SearchParams, EmailPreview } from "./types";
 import { decodeBase64, fetchEmailAttachmentsGmail, fetchGoogleEmailDetails, fetchGoogleEmails, getEmailBody, searchEmailsGoogle } from "./queries.google";
+import { flattenAndFilter } from "../utils";
 
 const FolderTranslation = {
     "microsoft-entra-id": {
         [MailFolder.Inbox]: "inbox",
-        [MailFolder.Drafts]: "drafts",
+        // [MailFolder.Drafts]: "drafts",
         [MailFolder.SentItems]: "sentitems",
         [MailFolder.DeletedItems]: "deleteditems",
-        [MailFolder.Starred]: "starred",
+        // [MailFolder.Starred]: "starred",
         [MailFolder.Archive]: "archive",
     },
     google: {
         [MailFolder.Inbox]: "INBOX",
-        [MailFolder.Drafts]: "DRAFT",
+        // [MailFolder.Drafts]: "DRAFT",
         [MailFolder.SentItems]: "SENT",
         [MailFolder.DeletedItems]: "TRASH",
-        [MailFolder.Starred]: "STARRED",
+        // [MailFolder.Starred]: "STARRED",
         [MailFolder.Archive]: "-in:inbox",
     },
 };
@@ -134,6 +135,10 @@ export const fetchEmailExist = async (provider: ProviderName, accessToken: strin
 };
 
 export const fetchSearchEmails = async (provider: ProviderName, accessToken: string, query: SearchParams): Promise<EmailPreview[]> => {
+    if (flattenAndFilter(query).length === 0 || Object.keys(query).length === 0) {
+        return [];
+    }
+    console.log("Searching emails with query:", flattenAndFilter(query));
     if (provider === "microsoft-entra-id") {
         const data = await searchEmailsMicrosoft(accessToken, query);
         return data;

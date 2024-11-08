@@ -1,4 +1,3 @@
-// import { searchThreads } from '@/lib/db/queries';
 import { NavMenu } from '../components/menu';
 import Link from 'next/link';
 import { X } from 'lucide-react';
@@ -8,17 +7,17 @@ import { Suspense } from 'react';
 import { fetchSearchEmails } from '../../lib/db/queries';
 import { auth } from '../../auth';
 import { ThreadSkeleton } from '../components/thread-list';
-import { SearchParams } from '../../lib/db/types';
 
 async function Threads({
-  query,
+  searchParams,
 }: {
-  query: SearchParams;
+  searchParams: Promise<{ q?: string; id?: string }>;
 }) {
   const session = await auth();
 
   if (!session) return null;
 
+  const [query] = await parseFilter((await searchParams).q || '');
   const threads = await fetchSearchEmails(session.provider!, session.accessToken!, query);
 
   const filters = flattenAndFilter(query);
@@ -41,7 +40,7 @@ async function Threads({
               <div className="flex-grow flex items-center overflow-hidden p-4">
                 <div className="w-[200px] flex-shrink-0 mr-4 truncate">
                   <span className="font-medium truncate">
-                    {highlightText(formatEmailString(thread.sender), sender || '')}
+                    {highlightText(formatEmailString(thread.sender), sender || q || '')}
                   </span>
                 </div>
                 <div className="flex-grow flex items-center overflow-hidden">
@@ -71,14 +70,8 @@ async function Threads({
 export default async function SearchPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; id?: string }>;
+  searchParams: Promise<{ q?: string }>;
 }) {
-
-  const { q } = await searchParams;
-
-  const [query, htmlEmbebbed] = await parseFilter(q || '');
-
-  console.log(query, htmlEmbebbed);
 
   return (
     <div className="flex h-screen">
@@ -102,7 +95,7 @@ export default async function SearchPage({
           </div>
         </div>
         <Suspense fallback={<ThreadSkeleton />}>
-          <Threads query={query} />
+          <Threads searchParams={searchParams} />
         </Suspense>
       </div>
     </div>

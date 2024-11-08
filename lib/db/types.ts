@@ -42,10 +42,10 @@ export interface Attachment {
 
 export enum MailFolder {
     Inbox = "inbox",
-    Drafts = "drafts",
+    // Drafts = "drafts",
     SentItems = "sent",
     DeletedItems = "trash",
-    Starred = "starred",
+    // Starred = "starred",
     Archive = "archive",
 }
 

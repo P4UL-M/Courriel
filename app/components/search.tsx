@@ -29,6 +29,7 @@ export function Search() {
         name="q"
         className="w-full py-2 bg-transparent focus:outline-none"
         placeholder="Search"
+        autoComplete='off'
         defaultValue={searchParams.get('q')?.toString()}
       />
     </Form>
