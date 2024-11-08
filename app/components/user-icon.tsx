@@ -3,6 +3,7 @@ import { useSession, signOut, SessionProvider } from "next-auth/react";
 import Image from "next/image";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Cross2Icon } from "@radix-ui/react-icons";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export const UserIcon = () => {
     const { data: session } = useSession();
@@ -36,6 +37,9 @@ export const UserIcon = () => {
                 <Dialog.Portal>
                     <Dialog.Overlay className="fixed inset-0 bg-black/50" />
                     <Dialog.Content className="fixed top-1/2 left-1/2 w-full max-w-md p-6 bg-white rounded-lg shadow-lg transform -translate-x-1/2 -translate-y-1/2 dark:bg-gray-800">
+                        <VisuallyHidden>
+                            <Dialog.Title>User Profile</Dialog.Title>
+                        </VisuallyHidden>
                         <Dialog.Close className="absolute top-4 right-4">
                             <Cross2Icon className="w-6 h-6" />
                         </Dialog.Close>
