@@ -2,76 +2,68 @@
 import { NavMenu } from '../components/menu';
 import Link from 'next/link';
 import { X } from 'lucide-react';
-import { formatEmailString, highlightText } from '@/lib/utils';
+import { flattenAndFilter, formatEmailString, highlightText, parseFilter } from '@/lib/utils';
 import { Search } from '../components/search';
 import { Suspense } from 'react';
+import { fetchSearchEmails } from '../../lib/db/queries';
+import { auth } from '../../auth';
+import { ThreadSkeleton } from '../components/thread-list';
+import { SearchParams } from '../../lib/db/types';
 
 async function Threads({
-  searchParams,
+  query,
 }: {
-  searchParams: Promise<{ q?: string; id?: string }>;
+  query: SearchParams;
 }) {
-  const q = (await searchParams).q;
-  // let threads = await searchThreads(q);
-  const threads = [
-    {
-      id: "1",
-      folderName: "Inbox",
-      latestEmail: {
-        sender: "John Doe",
-        subject: "Hello, World!",
-        body: "This is a test email",
-      },
-      lastActivityDate: new Date(),
-    },
-    {
-      id: "2",
-      folderName: "Inbox",
-      latestEmail: {
-        sender: "Jane Doe",
-        subject: "Hello, World!",
-        body: "This is a test email",
-      },
-      lastActivityDate: new Date(),
-    },
-  ];
+  const session = await auth();
+
+  if (!session) return null;
+
+  const threads = await fetchSearchEmails(session.provider!, session.accessToken!, query);
+
+  const filters = flattenAndFilter(query);
+  const q = filters.find((f) => f.q !== undefined)?.q;
+  const sender = filters.find((f) => f.sender !== undefined)?.sender;
+  const subject = filters.find((f) => f.subject !== undefined)?.subject;
 
   return (
     <div className="overflow-auto h-[calc(100vh-64px)]">
-      {threads.map((thread) => {
-        const latestEmail = thread.latestEmail;
-        return (
+      {threads.length > 0 ? (
+        threads.map((thread) => (
           <Link
             key={thread.id}
-            href={`/f/${thread.folderName.toLowerCase()}/${thread.id}`}
+            href={`/f/inbox/${thread.id}`} // the folder name is hardcoded here but the right mail will still be shown, just not from the right folder (get the folder name require another query and might not return the root folder name)
+            className="block hover:bg-gray-50 cursor-pointer border-b border-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
             <div
-              className={`flex items-center p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100`}
+              className="flex items-center"
             >
-              <div className="flex-grow flex items-center overflow-hidden">
-                <div className="w-[200px] flex-shrink-0 mr-4">
+              <div className="flex-grow flex items-center overflow-hidden p-4">
+                <div className="w-[200px] flex-shrink-0 mr-4 truncate">
                   <span className="font-medium truncate">
-                    {highlightText(formatEmailString(latestEmail.sender), q)}
+                    {highlightText(formatEmailString(thread.sender), sender || '')}
                   </span>
                 </div>
                 <div className="flex-grow flex items-center overflow-hidden">
                   <span className="font-medium truncate min-w-[175px] max-w-[400px] mr-2">
-                    {highlightText(thread.subject, q)}
+                    {highlightText(thread.subject, subject || q || '')}
                   </span>
-                  <span className="text-gray-600 truncate">
-                    {highlightText(latestEmail.body, q)}
+                  <span className="text-gray-600 truncate dark:text-gray-400">
+                    {highlightText(thread.bodyPreview, q || '')}
                   </span>
                 </div>
               </div>
-              <div className="flex items-center justify-end flex-shrink-0 w-40 ml-4">
-                <span className="text-sm text-gray-500">
-                  {new Date(thread.lastActivityDate).toLocaleDateString()}
+              <div className="flex items-center justify-end flex-shrink-0 w-40 p-4">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  {new Date(thread.sentDate!).toLocaleDateString()}
                 </span>
               </div>
             </div>
           </Link>
-        );
-      })}
+        ))
+      ) : (
+        <div className="p-4 text-gray-500">No results found</div>
+      )}
     </div>
   );
 }
@@ -81,6 +73,13 @@ export default async function SearchPage({
 }: {
   searchParams: Promise<{ q?: string; id?: string }>;
 }) {
+
+  const { q } = await searchParams;
+
+  const [query, htmlEmbebbed] = await parseFilter(q || '');
+
+  console.log(query, htmlEmbebbed);
+
   return (
     <div className="flex h-screen">
       <div className="flex-grow border-r border-gray-200 overflow-hidden">
@@ -102,8 +101,8 @@ export default async function SearchPage({
             </Link>
           </div>
         </div>
-        <Suspense>
-          <Threads searchParams={searchParams} />
+        <Suspense fallback={<ThreadSkeleton />}>
+          <Threads query={query} />
         </Suspense>
       </div>
     </div>

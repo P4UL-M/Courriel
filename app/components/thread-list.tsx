@@ -81,7 +81,7 @@ export function ThreadHeader({
   );
 }
 
-function ThreadSkeleton() {
+export function ThreadSkeleton() {
   return (
     <div className="flex items-center border-b border-gray-100 animate-pulse">
       <div className="flex-grow flex items-center overflow-hidden p-4">

@@ -1,6 +1,7 @@
 import * as microsoftgraph from "@microsoft/microsoft-graph-types";
 import { signOut } from "next-auth/react";
-import { Email } from "@/lib/db/types";
+import { Email, EmailPreview, SearchParams } from "@/lib/db/types";
+import { decomposeFilter } from "../utils";
 
 export const fetchUserProfile = async (accessToken: string) => {
     const response = await fetch("https://graph.microsoft.com/v1.0/me", {
@@ -108,5 +109,50 @@ export const fetchEmailExistMicrosoft = async (accessToken: string, emailId: str
     } catch (error) {
         console.error("Error fetching email existence:", error);
         return false;
+    }
+};
+
+export const searchEmailsMicrosoft = async (accessToken: string, filter: SearchParams): Promise<EmailPreview[]> => {
+    try {
+        const params = new URLSearchParams({
+            $count: "true",
+            $search: '"' + decomposeFilter(filter) + '"',
+            $select: "id,subject,sender,toRecipients,bodyPreview,sentDateTime,parentFolderId",
+        });
+
+        console.log("Search params:", params.toString());
+
+        const response = await fetch(`https://graph.microsoft.com/v1.0/me/messages?${params}`, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!response.ok) {
+            // sign out from server side
+            if (response.status === 401) return [];
+        }
+
+        const data = await response.json();
+        if (!data.value) return [];
+
+        return data.value.map(
+            (email: microsoftgraph.Message): EmailPreview => ({
+                id: email.id!,
+                sender: {
+                    name: email.sender?.emailAddress?.name || "Unknown",
+                    email: email.sender?.emailAddress?.address?.toLowerCase() || "",
+                },
+                recipients:
+                    email.toRecipients?.map((recipient) => ({
+                        name: recipient.emailAddress?.name || "Unknown",
+                        email: recipient.emailAddress?.address?.toLowerCase() || "",
+                    })) || [],
+                subject: email.subject || "No Subject",
+                bodyPreview: email.bodyPreview || "",
+                sentDate: new Date(email.sentDateTime || 0),
+            })
+        );
+    } catch (error) {
+        console.error("Error searching emails:", error);
+        return [];
     }
 };

@@ -53,3 +53,29 @@ export enum ProviderName {
     Microsoft = "microsoft-entra-id",
     Google = "google",
 }
+
+export interface Filter {
+    subject?: string;
+    sender?: string;
+    recipient?: string;
+    startDate?: string;
+    endDate?: string;
+    hasAttachment?: boolean;
+    folder?: MailFolder;
+    q?: string;
+}
+
+export interface AndFilter {
+    and: Filter[] | AndFilter[];
+}
+
+export type SearchParams = AndFilter | Filter;
+
+export interface EmailPreview {
+    id: string;
+    sender: Pick<User, "name" | "email">;
+    recipients: Pick<User, "name" | "email">[];
+    subject: string;
+    bodyPreview: string;
+    sentDate: Date;
+}

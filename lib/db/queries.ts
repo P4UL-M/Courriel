@@ -1,6 +1,6 @@
-import { fetchEmailAttachmentsMicrosoft, fetchEmailDetailsMicrosoft, fetchEmailExistMicrosoft, fetchEmailsMicrosoft } from "./queries.microsoft";
-import { Email, ProviderName, MailFolder } from "./types";
-import { decodeBase64, fetchEmailAttachmentsGmail, fetchGoogleEmailDetails, fetchGoogleEmails, getEmailBody } from "./queries.google";
+import { fetchEmailAttachmentsMicrosoft, fetchEmailDetailsMicrosoft, fetchEmailExistMicrosoft, fetchEmailsMicrosoft, searchEmailsMicrosoft } from "./queries.microsoft";
+import { Email, ProviderName, MailFolder, SearchParams, EmailPreview } from "./types";
+import { decodeBase64, fetchEmailAttachmentsGmail, fetchGoogleEmailDetails, fetchGoogleEmails, getEmailBody, searchEmailsGoogle } from "./queries.google";
 
 const FolderTranslation = {
     "microsoft-entra-id": {
@@ -130,5 +130,17 @@ export const fetchEmailExist = async (provider: ProviderName, accessToken: strin
     } else {
         console.error("Unknown provider:", provider);
         return false;
+    }
+};
+
+export const fetchSearchEmails = async (provider: ProviderName, accessToken: string, query: SearchParams): Promise<EmailPreview[]> => {
+    if (provider === "microsoft-entra-id") {
+        const data = await searchEmailsMicrosoft(accessToken, query);
+        return data;
+    } else if (provider === "google") {
+        const data = await searchEmailsGoogle(accessToken, query);
+        return data;
+    } else {
+        return [];
     }
 };

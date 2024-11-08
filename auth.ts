@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import { Provider } from "next-auth/providers";
 import Google from "next-auth/providers/google";
 import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
+import { ProviderName } from "./lib/db/types";
 
 const providers: Provider[] = [
     MicrosoftEntraID({
@@ -53,7 +54,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             // Add property to session, so we can check if user is authenticated
             if (token?.accessToken) {
                 session.accessToken = token.accessToken as string;
-                session.provider = token.provider as string;
+                session.provider = token.provider as ProviderName;
             }
             return session;
         },

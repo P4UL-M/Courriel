@@ -7,9 +7,18 @@ export const metadata = {
     title: "Login - Courriel",
 };
 
-export default function LoginPage(props: {
-    searchParams: { callbackUrl: string | undefined }
-}) {
+type PropsType = {
+    searchParams: {
+        callbackUrl: string | undefined;
+    },
+};
+
+export default async function LoginPage(
+    { searchParams }: PropsType
+) {
+
+    const { callbackUrl } = await searchParams;
+
     return (
         <div className="relative min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-purple-100 via-white to-blue-100  overflow-hidden dark:from-purple-800 dark:via-gray-900 dark:to-blue-800">
 
@@ -27,7 +36,7 @@ export default function LoginPage(props: {
                                 "use server"
                                 try {
                                     await signIn(provider.id, {
-                                        redirectTo: props.searchParams?.callbackUrl ?? "",
+                                        redirectTo: callbackUrl ?? "",
                                     })
                                 } catch (error) {
                                     // Signin can fail for a number of reasons, such as the user

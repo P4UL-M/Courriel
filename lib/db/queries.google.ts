@@ -1,6 +1,8 @@
 import { FileAttachment } from "@microsoft/microsoft-graph-types";
 import { signOut } from "next-auth/react";
 import { Email } from "./types";
+import { EmailPreview, SearchParams } from "./types";
+import { decomposeFilter } from "../utils";
 
 export type GoogleEmail = gapi.client.gmail.Message;
 export type GoogleEmailResponse = Pick<gapi.client.gmail.Message, "id" | "threadId">;
@@ -202,3 +204,54 @@ export const fetchEmailAttachmentsGmail = async (accessToken: string, emailId: s
         return [];
     }
 };
+
+export async function searchEmailsGoogle(accessToken: string, filter: SearchParams): Promise<EmailPreview[]> {
+    try {
+        const params = new URLSearchParams({
+            q: decomposeFilter(filter).replace("AND", " "),
+        });
+
+        const response = await fetch(`https://www.googleapis.com/gmail/v1/users/me/messages?${params}`, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!response.ok) {
+            if (response.status === 401) signOut();
+            return [];
+        }
+
+        const data = await response.json();
+        if (!data.messages) return [];
+
+        return await Promise.all(
+            data.messages.map(async (message: { id: string }) => {
+                const messageResponse = await fetch(`https://www.googleapis.com/gmail/v1/users/me/messages/${message.id}`, {
+                    headers: { Authorization: `Bearer ${accessToken}`, Accept: "application/json" },
+                });
+
+                const messageData: gapi.client.gmail.Message = await messageResponse.json();
+                const sender = messageData.payload?.headers?.find((header) => header.name === "From")?.value || "Unknown";
+                const senderName = sender.split("<")[0].trim();
+                const senderEmail = sender.match(/<([^>]*)>/)?.[1] || sender;
+
+                return {
+                    id: messageData.id!,
+                    sender: { name: senderName, email: senderEmail.toLowerCase() },
+                    recipients:
+                        messageData.payload?.headers
+                            ?.filter((header) => header.name === "To")
+                            .map((header) => ({
+                                email: header.value?.split("<")[1]?.replace(">", "").toLowerCase() || header.value,
+                                name: header.value?.split("<")[0]?.trim() || header.value,
+                            })) || [],
+                    subject: messageData.payload?.headers?.find((header) => header.name === "Subject")?.value || "No Subject",
+                    bodyPreview: messageData.snippet || "",
+                    sentDate: new Date(parseInt(messageData.internalDate || "0")),
+                } as EmailPreview;
+            })
+        );
+    } catch (error) {
+        console.error("Error searching emails:", error);
+        return [];
+    }
+}
