@@ -5,8 +5,8 @@ export default async function ThreadsPage({
     params,
     searchParams,
 }: {
-    params: { name: string };
-    searchParams: { q?: string; id?: string };
+    params: Promise<{ name: string }>;
+    searchParams: Promise<{ q?: string; id?: string }>;
 }) {
     const { name } = await params;
     const { q } = await searchParams;

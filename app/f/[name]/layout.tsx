@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 
-export async function generateMetadata({ params }: { params: { name: string; id: string } }) {
+export async function generateMetadata({ params }: { params: Promise<{ name: string }> }) {
     const session = await auth();
     const { name } = await params;
 

@@ -8,9 +8,9 @@ export const metadata = {
 };
 
 type PropsType = {
-    searchParams: {
+    searchParams: Promise<{
         callbackUrl: string | undefined;
-    },
+    }>,
 };
 
 export default async function LoginPage(
