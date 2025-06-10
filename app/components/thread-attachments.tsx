@@ -24,7 +24,10 @@ const ThreadAttachments = ({ emailId, setCidAttachments }: EmailAttachmentsProps
 
     useEffect(() => {
         const fetchAttachments = async () => {
-            if (!accessToken || !provider || !emailId) return;
+            if (!accessToken || !provider || !emailId) {
+                setLoading(false);
+                return;
+            };
 
             setLoading(true);
             try {
