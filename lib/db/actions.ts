@@ -48,7 +48,7 @@ export async function sendEmailAction(_: any, formData: FormData) {
         }
     } catch (error: any) {
         if (error instanceof z.ZodError) {
-            return { error: error.errors[0].message, success: false };
+            return { error: error.issues[0].message, success: false };
         }
         return {
             error: "Failed to send email. Please try again.",
