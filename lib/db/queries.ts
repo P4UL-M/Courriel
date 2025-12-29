@@ -1,7 +1,20 @@
-import { fetchEmailAttachmentsMicrosoft, fetchEmailDetailsMicrosoft, fetchEmailExistMicrosoft, fetchEmailsMicrosoft, searchEmailsMicrosoft } from "./queries.microsoft";
-import { Email, ProviderName, MailFolder, SearchParams, EmailPreview } from "./types";
-import { decodeBase64, fetchEmailAttachmentsGmail, fetchGoogleEmailDetails, fetchGoogleEmails, getEmailBody, searchEmailsGoogle } from "./queries.google";
-import { flattenAndFilter } from "../utils";
+import { fetchEmailAttachmentsMicrosoft, fetchEmailDetailsMicrosoft, fetchEmailsMicrosoft } from "./queries.microsoft";
+import { Email } from "./types";
+import { decodeBase64, fetchGoogleEmailDetails, fetchGoogleEmails, getEmailBody, GoogleEmail } from "./queries.google";
+
+export enum MailFolder {
+    Inbox = "inbox",
+    Drafts = "drafts",
+    SentItems = "sent",
+    DeletedItems = "trash",
+    Starred = "starred",
+    Archive = "archive",
+}
+
+export enum ProviderName {
+    Microsoft = "microsoft-entra-id",
+    Google = "google",
+}
 
 const FolderTranslation = {
     "microsoft-entra-id": {
