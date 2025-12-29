@@ -1,13 +1,12 @@
-import { fetchEmailAttachmentsMicrosoft, fetchEmailDetailsMicrosoft, fetchEmailsMicrosoft } from "./queries.microsoft";
-import { Email } from "./types";
-import { decodeBase64, fetchGoogleEmailDetails, fetchGoogleEmails, getEmailBody, GoogleEmail } from "./queries.google";
+import { fetchEmailAttachmentsMicrosoft, fetchEmailDetailsMicrosoft, fetchEmailsMicrosoft, fetchEmailExistMicrosoft, searchEmailsMicrosoft } from "./queries.microsoft";
+import { Email, EmailPreview, SearchParams } from "./types";
+import { decodeBase64, fetchGoogleEmailDetails, fetchGoogleEmails, getEmailBody, fetchEmailAttachmentsGmail, searchEmailsGoogle } from "./queries.google";
+import { flattenAndFilter } from "../utils";
 
 export enum MailFolder {
     Inbox = "inbox",
-    Drafts = "drafts",
     SentItems = "sent",
     DeletedItems = "trash",
-    Starred = "starred",
     Archive = "archive",
 }
 
@@ -19,21 +18,17 @@ export enum ProviderName {
 const FolderTranslation = {
     "microsoft-entra-id": {
         [MailFolder.Inbox]: "inbox",
-        // [MailFolder.Drafts]: "drafts",
         [MailFolder.SentItems]: "sentitems",
         [MailFolder.DeletedItems]: "deleteditems",
-        // [MailFolder.Starred]: "starred",
         [MailFolder.Archive]: "archive",
     },
     google: {
         [MailFolder.Inbox]: "INBOX",
-        // [MailFolder.Drafts]: "DRAFT",
         [MailFolder.SentItems]: "SENT",
         [MailFolder.DeletedItems]: "TRASH",
-        // [MailFolder.Starred]: "STARRED",
         [MailFolder.Archive]: "-in:inbox",
     },
-};
+} satisfies Record<ProviderName, Partial<Record<MailFolder, string>>>;
 
 export const fetchEmails = async (
     provider: ProviderName,
@@ -46,10 +41,10 @@ export const fetchEmails = async (
     data: Email[];
 }> => {
     if (provider === "microsoft-entra-id") {
-        const mailFolder = folder && FolderTranslation[provider][folder];
+        const mailFolder = folder ? FolderTranslation[provider][folder] : undefined;
         return await fetchEmailsMicrosoft(accessToken, number, mailFolder, nextIndex);
     } else if (provider === "google") {
-        const mailFolder = folder && FolderTranslation[provider][folder];
+        const mailFolder = folder ? FolderTranslation[provider][folder] : undefined;
         return await fetchGoogleEmails(accessToken, number, mailFolder, nextIndex);
     } else {
         return { data: [] };
